@@ -1,0 +1,145 @@
+:root { 
+  --ribbon-bg: #ffffff; 
+  --border-color: #edebe9; 
+  --bg-workspace: #090d16; 
+  --brand-dark: #0f172a; 
+  --brand-accent: #00b894; 
+}
+
+#root {
+  max-width: 100% !important;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body { 
+  display: flex; 
+  flex-direction: column; 
+  height: 100vh; 
+  max-height: 100vh;
+  overflow: hidden; 
+  background-color: var(--bg-workspace); 
+  font-family: 'Inter', sans-serif; 
+}
+
+.quick-access { background: var(--brand-dark); color: white; padding: 8px 20px; display: flex; gap: 15px; align-items: center; z-index: 100; flex-wrap: wrap; user-select: none; flex-shrink: 0; }
+.tabs { background: var(--brand-dark); display: flex; padding-left: 10px; z-index: 50; user-select: none; flex-shrink: 0; }
+.tab { padding: 10px 20px; color: rgba(255,255,255,0.7); cursor: pointer; font-size: 13px; font-weight: 600; border-radius: 8px 8px 0 0; user-select: none; }
+.tab.active { background: var(--ribbon-bg); color: var(--brand-dark); }
+
+.header-authors-wrapper { display: flex; align-items: center; gap: 8px; margin-left: auto; background: rgba(255,255,255,0.08); padding: 4px 10px; border-radius: 8px; }
+.author-list { display: flex; align-items: center; gap: 6px; }
+.author-tag { background: #334155; color: #f8fafc; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+.author-remove { cursor: pointer; color: #f87171; font-weight: bold; margin-left: 2px; }
+.author-input-row { display: flex; gap: 4px; }
+.author-input { font-size: 11px; padding: 4px 8px; border: 1px solid #475569; background: #0f172a; color: #fff; border-radius: 4px; outline: none; width: 130px; }
+.author-add-btn { background: #3b82f6; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; }
+
+.ribbon-content { background: var(--ribbon-bg); height: 115px; border-bottom: 1px solid var(--border-color); display: flex; padding: 0 20px; align-items: center; gap: 10px; user-select: none; flex-shrink: 0; }
+.group { display: flex; flex-direction: column; align-items: center; border-right: 1px solid var(--border-color); padding: 0 15px; height: 85%; justify-content: center; }
+.group-label { font-size: 10px; color: #888; margin-top: 5px; text-transform: uppercase; }
+.btn-row { display: flex; gap: 4px; align-items: center; }
+.btn-ribbon { background: none; border: 1px solid transparent; padding: 6px; cursor: pointer; border-radius: 4px; font-size: 12px; color: var(--brand-dark); transition: 0.2s; }
+.btn-ribbon:hover { background: #f0f0f0; border-color: #ccc; }
+.btn-big { flex-direction: column; display: flex; min-width: 55px; text-align: center; }
+.btn-big span { font-size: 20px; }
+
+/* Paginated Workspace Layout */
+.workspace { 
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  padding: 40px 20px 80px 20px; 
+  position: relative; 
+}
+
+.paper-wrapper { 
+  position: relative; 
+  width: 100%; 
+  max-width: 8.5in !important; 
+  margin: 0 auto; 
+}
+
+/* Paginated page gap stack view with repeating white pages and gaps */
+.editor-container { 
+  width: 100%; 
+  max-width: 8.5in !important; 
+  min-height: 11in; 
+  background: linear-gradient(to bottom, #ffffff 0px, #ffffff 1056px, transparent 1056px, transparent 1096px) !important; 
+  background-size: 100% 1096px !important; 
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.25)); 
+  border: none; 
+  margin: 0 auto; 
+}
+
+.editor-input { padding: 1in; line-height: 1.15; font-size: 14px; font-family: 'Arial', sans-serif; color: #000000 !important; min-height: 11in; outline: none; }
+.editor-input p, .editor-input span, .editor-input div { color: #000000 !important; }
+
+.document-header,
+.document-footer {
+  min-height: 40px;
+  text-align: center;
+  cursor: text;
+  color: #334155;
+  font-family: inherit;
+  transition: border 0.2s ease;
+}
+.document-header { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px dashed transparent; }
+.document-header:hover { border-bottom: 1px dashed var(--border-color); }
+.document-footer { margin-top: 20px; padding-top: 10px; border-top: 1px dashed transparent; }
+.document-footer:hover { border-top: 1px dashed var(--border-color); }
+.header-input, .footer-input { width: 100%; text-align: center; border: none; outline: none; font-size: inherit; font-family: inherit; background: transparent; padding: 5px; color: #0f172a; }
+.header-display, .footer-display { padding: 5px; user-select: none; color: #0f172a; font-weight: 500; }
+
+.badge-trigger { position: fixed; top: 160px; right: 40px; z-index: 10; display: flex; flex-direction: column; gap: 10px; user-select: none; }
+.action-btn { background: var(--brand-accent); color: var(--brand-dark); border: none; padding: 10px 20px; border-radius: 12px; font-weight: 800; cursor: pointer; font-size: 11px; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.action-btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+.status-bar { background: var(--brand-dark); color: white; padding: 6px 20px; font-size: 12px; display: flex; justify-content: space-between; z-index: 90; user-select: none; flex-shrink: 0; }
+
+.editor-text-bold { font-weight: bold; }
+.editor-text-italic { font-style: italic; }
+.editor-text-underline { text-decoration: underline; }
+.editor-text-superscript { vertical-align: super; font-size: 75%; line-height: 0; }
+.editor-text-subscript { vertical-align: sub; font-size: 75%; line-height: 0; }
+
+/* Page numbers aligned precisely to the bottom right corner of each page */
+.page-number-screen {
+  display: flex !important;
+  justify-content: flex-end !important;
+  width: 100% !important;
+  text-align: right !important;
+  padding-right: 0.75in !important;
+  padding-bottom: 15px !important;
+  font-size: 13px !important;
+  color: #475569 !important;
+}
+
+.page-number-print {
+  display: none !important;
+}
+
+@media print {
+  @page { size: letter; margin: 0; }
+  .quick-access, .tabs, .ribbon-content, .badge-trigger, .status-bar, .custom-view-container, .research-sidebar { display: none !important; }
+  .page-number-screen { display: none !important; }
+  .page-number-print { display: block !important; color: #000000 !important; width: 100% !important; text-align: right !important; padding-right: 0.75in !important; margin-top: 20px !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  html, body, #root, .workspace, .paper-wrapper, .editor-container { width: 8.5in !important; height: auto !important; max-height: none !important; background: #ffffff !important; color: #000000 !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; display: block !important; box-shadow: none !important; border: none !important; filter: none !important; }
+  .editor-input { display: block !important; color: #000000 !important; padding: 0.75in !important; min-height: auto !important; height: auto !important; overflow: visible !important; }
+  .editor-input p, .editor-input span, .editor-input div, .editor-listitem { color: #000000 !important; }
+  .editor-input div, .editor-input table { break-inside: avoid !important; page-break-inside: avoid !important; }
+  .document-header, .document-footer { color: #000000 !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}

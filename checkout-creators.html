@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6B0NP15RYC"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-6B0NP15RYC');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Trial Activation | Provenant™ Creators</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap">
+    
+    <style>
+        :root {
+            --brand-creator: #e11d48; /* Vibrant Rose branding */
+            --brand-dark: #0f172a;    /* Deep Slate */
+            --brand-surface: #1e293b; /* Medium Slate */
+            --brand-glass: rgba(255, 255, 255, 0.03);
+            --brand-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --brand-accent: #00b894;  /* Success Green */
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top, #310413 0%, #0f172a 100%);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .checkout-container {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            width: 100%;
+            max-width: 1000px;
+            background: var(--brand-glass);
+            border: 1px solid var(--brand-border);
+            border-radius: 24px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            position: relative;
+        }
+
+        .payment-form {
+            padding: 60px;
+            background: #111827;
+            position: relative;
+        }
+
+        .payment-form h2 { 
+            margin-bottom: 30px; 
+            font-size: 1.8rem; 
+            font-weight: 900; 
+            letter-spacing: -1px;
+        }
+
+        .form-group { margin-bottom: 20px; }
+        
+        label { 
+            display: block; 
+            font-size: 11px; 
+            color: var(--text-muted); 
+            margin-bottom: 8px; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            font-weight: 800; 
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--brand-border);
+            border-radius: 8px;
+            color: white;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        input:focus { border-color: var(--brand-creator); }
+
+        .code-input {
+            font-family: 'Fira Code', monospace;
+            font-size: 22px;
+            letter-spacing: 8px;
+            text-align: center;
+            padding: 12px;
+        }
+
+        .secure-btn {
+            width: 100%;
+            background: var(--brand-creator);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(225, 29, 72, 0.3);
+            letter-spacing: 0.5px;
+        }
+
+        .secure-btn:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 12px 25px rgba(225, 29, 72, 0.5); 
+            filter: brightness(1.1);
+        }
+
+        .secure-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .secondary-btn {
+            background: transparent;
+            border: 1px solid var(--brand-border);
+            color: var(--text-muted);
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .secondary-btn:hover {
+            border-color: #f8fafc;
+            color: #f8fafc;
+        }
+
+        .verification-panel {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px 0;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .verify-badge {
+            width: 64px;
+            height: 64px;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+
+        .target-email-display {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--brand-border);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            color: #38bdf8;
+            margin: 12px 0 20px 0;
+            word-break: break-all;
+        }
+
+        .order-summary {
+            padding: 60px;
+            background: rgba(30, 41, 59, 0.2);
+            border-left: 1px solid var(--brand-border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .order-summary h3 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .total { 
+            font-size: 1.5rem; 
+            font-weight: 900; 
+            color: var(--brand-accent); 
+            margin-top: 30px; 
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @media (max-width: 850px) {
+            .checkout-container { grid-template-columns: 1fr; }
+            .order-summary { order: -1; padding: 40px; border-left: none; border-bottom: 1px solid var(--brand-border); }
+            .payment-form { padding: 40px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="checkout-container">
+        <div class="payment-form">
+            <!-- STEP 1: INITIAL SIGNUP FORM -->
+            <div id="checkout-form-step">
+                <h2>Account Verification</h2>
+                <form id="payment-form">
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="user-email-input" placeholder="creator@domain.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Full Name / Studio Entity</label>
+                        <input type="text" id="user-name-input" placeholder="First and Last Name or Brand Legal Name" required>
+                    </div>
+                    
+                    <button type="submit" id="submit-btn" class="secure-btn">Continue to Secure Setup</button>
+                    
+                    <p style="text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 20px;">
+                        🔒 Workspace Secured. You will not be billed during your 30-day forensic trial pipeline.
+                    </p>
+                </form>
+            </div>
+
+            <!-- STEP 2: EMAIL VERIFICATION PENDING STATE -->
+            <div id="verification-step" class="verification-panel">
+                <div class="verify-badge">📩</div>
+                <h2 style="margin-bottom: 10px;">Check Your Inbox</h2>
+                <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+                    Enter the 6-digit verification code sent to your email to continue.
+                </p>
+
+                <div class="target-email-display" id="confirmed-email-target">creator@domain.com</div>
+
+                <!-- VERIFICATION CODE FORM -->
+                <form id="code-verification-form" style="width: 100%;">
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label>6-Digit Verification Code</label>
+                        <input type="text" id="verification-code-input" class="code-input" maxlength="6" placeholder="123456" required autocomplete="off">
+                    </div>
+
+                    <p id="code-error-msg" style="font-size: 12px; color: #e11d48; margin-bottom: 10px; display: none;">
+                        ❌ Invalid verification code. Please try again.
+                    </p>
+
+                    <button type="submit" class="secure-btn" style="margin-top: 5px;">
+                        Verify & Launch Workspace
+                    </button>
+                </form>
+                    
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                    <button type="button" class="secondary-btn" id="resend-btn" onclick="resendVerificationEmail()">Resend Email</button>
+                    <button type="button" class="secondary-btn" onclick="editEmailAddress()">Edit Email</button>
+                </div>
+
+                <p id="resend-status-msg" style="font-size: 11px; color: var(--brand-accent); margin-top: 15px; display: none;"></p>
+            </div>
+        </div>
+
+        <div class="order-summary">
+            <div>
+                <h3>Order Summary</h3>
+                <p style="color: var(--text-muted); font-size: 13px;">Review your verification portal selection</p>
+                
+                <div class="summary-item">
+                    <div>
+                        <div id="summary-plan-name" style="font-weight: 800; color: #fff; min-height: 20px;"></div>
+                        <div id="summary-billing-interval" style="font-size: 12px; color: var(--text-muted); margin-top: 4px; min-height: 18px;"></div>
+                    </div>
+                    <div id="summary-base-price" style="font-weight: 700;"></div>
+                </div>
+
+                <div class="summary-item">
+                    <div style="color: var(--text-muted);">30-Day Trial Credit</div>
+                    <div id="summary-discount-price" style="color: var(--brand-accent); font-weight: 700;"></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="total">
+                    <span style="font-size: 13px; color: white; font-weight: bold; text-transform: uppercase; margin-right: 4px;">Due Today:</span> $0.00
+                </div>
+
+                <div style="margin-top: 30px; font-size: 11px; color: var(--text-muted); line-height: 1.6;">
+                    <p id="billing-timeline-disclosure"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const WORKER_URL = "https://verify-email.kzinyemb.workers.dev/";
+
+        let activePlanName = "Creator Studio Pro Suite";
+        let currentEmail = "";
+        let activeCode = ""; // Stores generated code for validation
+
+        window.onload = function() {
+            let planPrice = "$29.00";
+            let intervalLabel = "Visual Provenance & Cadence Tracking Module"; 
+            let structuralInterval = "/mo";
+
+            document.getElementById('summary-plan-name').innerText = activePlanName;
+            document.getElementById('summary-billing-interval').innerText = intervalLabel;
+            document.getElementById('summary-base-price').innerText = planPrice;
+            document.getElementById('summary-discount-price').innerText = "- " + planPrice;
+            
+            const targetTrialExpiration = new Date();
+            targetTrialExpiration.setDate(targetTrialExpiration.getDate() + 30);
+            const genericFormattedDate = targetTrialExpiration.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            
+            document.getElementById('billing-timeline-disclosure').innerHTML = `After your 30-day forensic sandbox trial ends on <b>${genericFormattedDate}</b>, your account will require a standard platform renewal step of <b>${planPrice}${structuralInterval}</b> to maintain cryptographic logging active.`;
+        };
+
+        // Sends request to Cloudflare Worker
+        async function sendVerificationApi(email) {
+            // Generate fresh 6-digit code
+            activeCode = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            const response = await fetch(WORKER_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: email, code: activeCode })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || "Failed to dispatch verification email.");
+            }
+
+            return await response.json();
+        }
+
+        // Form 1 Submit: Dispatches Email via Worker
+        document.getElementById('payment-form').onsubmit = async function(e) {
+            e.preventDefault();
+            currentEmail = document.getElementById('user-email-input').value.trim();
+            const submitBtn = document.getElementById('submit-btn');
+
+            if (!currentEmail) return;
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Sending Verification Code...";
+
+            try {
+                await sendVerificationApi(currentEmail);
+
+                // Set email in verification view
+                document.getElementById('confirmed-email-target').innerText = currentEmail;
+
+                // Reset code input field and error messages
+                document.getElementById('verification-code-input').value = '';
+                document.getElementById('code-error-msg').style.display = 'none';
+
+                // Switch Panels
+                document.getElementById('checkout-form-step').style.display = 'none';
+                document.getElementById('verification-step').style.display = 'flex';
+            } catch (err) {
+                alert("Error sending verification email: " + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Continue to Secure Setup";
+            }
+        };
+
+        // Form 2 Submit: Validates Code & Redirects straight to the Mobile Web App
+        document.getElementById('code-verification-form').onsubmit = function(e) {
+            e.preventDefault();
+            const enteredCode = document.getElementById('verification-code-input').value.trim();
+            const errorMsg = document.getElementById('code-error-msg');
+
+            if (enteredCode === activeCode) {
+                errorMsg.style.display = 'none';
+                
+                // Save auth state locally so the app knows who is logged in
+                localStorage.setItem('provenant_auth_status', 'verified');
+                localStorage.setItem('provenant_creator_email', currentEmail);
+
+                // Direct routing bypasses Stripe and instantly opens the mobile workspace
+                window.location.href = 'creators-index.html';
+            } else {
+                errorMsg.style.display = 'block';
+            }
+        };
+
+        // Resend Verification Email Action
+        async function resendVerificationEmail() {
+            const msg = document.getElementById('resend-status-msg');
+            const resendBtn = document.getElementById('resend-btn');
+
+            resendBtn.disabled = true;
+            msg.style.color = "var(--text-muted)";
+            msg.innerText = "Sending fresh code...";
+            msg.style.display = 'block';
+
+            try {
+                await sendVerificationApi(currentEmail);
+                msg.style.color = "var(--brand-accent)";
+                msg.innerText = "✓ Fresh verification code sent to your inbox.";
+                document.getElementById('code-error-msg').style.display = 'none';
+            } catch (err) {
+                msg.style.color = "#e11d48";
+                msg.innerText = "Failed to resend code. Please try again.";
+            } finally {
+                resendBtn.disabled = false;
+                setTimeout(() => { msg.style.display = 'none'; }, 4000);
+            }
+        }
+
+        // Return to Form to edit email
+        function editEmailAddress() {
+            document.getElementById('verification-step').style.display = 'none';
+            document.getElementById('checkout-form-step').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

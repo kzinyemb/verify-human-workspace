@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6B0NP15RYC"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-6B0NP15RYC');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provenant™ | Forensic Integrity Workstations</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Fira+Code:wght@400;500&display=swap">
+    
+    <style>
+        :root {
+            --brand-accent: #00b894; /* Emerald */
+            --brand-writer: #3b82f6; /* High-Visibility Tech Blue */
+            --brand-dark: #0f172a;   /* Deep Navy/Slate */
+            --brand-glass: rgba(255, 255, 255, 0.03);
+            --brand-surface: #1e293b; /* Medium Slate */
+            --brand-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .site-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .header-nav { display: flex; align-items: center; gap: 20px; }
+
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .nav-link:hover { color: #fff; }
+
+        .btn-login {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-login:hover {
+            background: var(--brand-writer);
+            border-color: var(--brand-writer);
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        section { padding: 80px 20px; max-width: 1200px; margin: 0 auto; }
+
+        .action-btn {
+            background: var(--brand-accent);
+            color: var(--brand-dark);
+            border: none;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            text-align: center;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 184, 148, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+        }
+
+        .alert-banner {
+            background: linear-gradient(90deg, #111827, var(--brand-dark));
+            color: #ffffff;
+            text-align: center;
+            padding: 12px 20px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .hero { text-align: center; padding: 60px 20px 40px 20px; }
+        .hero h1 { font-size: 4.2rem; font-weight: 900; line-height: 1.05; margin-bottom: 25px; letter-spacing: -2px; }
+
+        .pane { animation: fadeIn 0.4s ease forwards; }
+
+        .process-section { border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        
+        .process-step {
+            background: var(--brand-glass);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            transition: transform 0.3s ease;
+        }
+        .process-step:hover { transform: translateY(-5px); }
+        
+        .step-image-wrapper { width: 100%; height: 180px; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        
+        .step-image-wrapper img {
+            width: 100%; height: 100%; object-fit: cover; opacity: 0.75; transition: opacity 0.3s ease;
+        }
+        .process-step:hover .step-image-wrapper img { opacity: 0.95; }
+        .step-meta-row { display: flex; justify-content: space-between; align-items: baseline; }
+
+        .process-step h2 { font-size: 2.5rem; color: var(--brand-writer); line-height: 1; opacity: 0.9; font-weight: 900; }
+        .process-step h3 { font-size: 1.35rem; color: #fff; font-weight: 700; }
+        .process-step p { font-size: 0.92rem; }
+
+        .pricing-card {
+            background: var(--brand-glass);
+            backdrop-filter: blur(10px);
+            padding: 50px 40px;
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex; flex-direction: column;
+            transition: all 0.4s ease;
+        }
+        .pricing-card:hover { border-color: var(--brand-writer); transform: translateY(-10px); }
+        .featured { background: rgba(59, 130, 246, 0.05); border: 2px solid var(--brand-writer); }
+
+        .price { font-size: 3rem; font-weight: 800; margin: 25px 0; color: #fff; }
+        .price span { font-size: 1rem; color: var(--text-muted); font-weight: 400; }
+
+        .feature-list { list-style: none; margin-bottom: 40px; flex-grow: 1; }
+        .feature-list li { margin-bottom: 15px; color: var(--text-muted); font-size: 14px; display: flex; align-items: center; gap: 10px; }
+        .feature-list li::before { content: '✓'; color: var(--brand-writer); }
+
+        .feedback-section-container { text-align: center; border-top: 1px solid rgba(255, 255, 255, 0.05); padding: 80px 20px; }
+        .feedback-card-wrapper { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin-top: 40px; }
+        .feedback-node-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); padding: 30px 24px; border-radius: 16px; width: 100%; max-width: 320px; text-align: center; text-decoration: none; transition: all 0.3s ease; }
+        .feedback-node-card:hover { transform: translateY(-3px); background: rgba(255, 255, 255, 0.04); border-color: var(--brand-writer); }
+        .feedback-node-card h4 { font-size: 1.15rem; color: #fff; margin: 12px 0 6px 0; font-weight: 700; }
+        .feedback-node-card p { font-size: 0.88rem; color: var(--text-muted); }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            margin-top: 6px;
+            margin-bottom: 16px;
+            outline: none;
+        }
+        .modal-input:focus { border-color: var(--brand-writer); }
+
+        footer { text-align: center; padding: 40px 20px; border-top: 1px solid rgba(255, 255, 255, 0.05); }
+
+        @media (max-width: 768px) { 
+            .site-header { padding: 15px 20px; }
+            .hero h1 { font-size: 2.8rem; } 
+        }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="alert-banner">
+        🛡️ <strong>Provenant™ Forensics:</strong> Certify original composition and establish guaranteed document origin with behavioral biometric cadence analysis.
+    </div>
+
+    <!-- Header Navigation Bar -->
+    <header class="site-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M35 25V75M35 25H60C70 25 75 32 75 42C75 52 70 59 60 59H35" stroke="var(--brand-writer)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span style="font-weight: 900; font-size: 20px; letter-spacing: -1px; color: #fff;">
+                PROVEN<span style="color: var(--brand-writer);">ANT</span>™
+            </span>
+        </div>
+        <nav class="header-nav">
+            <a href="#plans" class="nav-link">Plans & Pricing</a>
+            <button class="btn-login" onclick="openLoginModal()">Client Login</button>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 20px; margin-bottom: 30px;">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <svg width="60" height="60" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M35 25V75M35 25H60C70 25 75 32 75 42C75 52 70 59 60 59H35" stroke="var(--brand-writer)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <line x1="20" x2="40" y1="35" y2="35" stroke="var(--brand-writer)" stroke-width="4" stroke-linecap="round" opacity="0.4"/>
+                    <line x1="20" x2="40" y1="50" y2="50" stroke="var(--brand-writer)" stroke-width="4" stroke-linecap="round" opacity="0.7"/>
+                    <line x1="20" x2="40" y1="65" y2="65" stroke="var(--brand-writer)" stroke-width="4" stroke-linecap="round" opacity="1"/>
+                </svg>
+                <span style="font-weight: 900; font-size: 42px; letter-spacing: -2px; color: #fff;">
+                    PROVEN<span style="color: var(--brand-writer);">ANT</span>™
+                </span>
+            </div>
+            <h1>Secure High-Value Clients.<br><span style="color: var(--brand-writer); text-shadow: 0 0 30px rgba(59, 130, 246, 0.3);">Prove Absolute Provenance.</span></h1>
+        </div>
+        <p style="max-width: 700px; margin: 0 auto; color: var(--text-muted); font-size: 1.1rem;">
+            Establish undeniable proof of genuine human authorship. Build your certified portfolio utilizing an isolated behavioral cadence workstation that validates your original content creation identity architecture.
+        </p>
+    </section>
+
+    <section class="process-section">
+        <div class="grid-3 pane">
+            <div class="process-step">
+                <div class="step-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=600&auto=format&fit=crop" alt="Composition Platform">
+                </div>
+                <div class="step-meta-row">
+                    <h3>Compose</h3>
+                    <h2>01</h2>
+                </div>
+                <p style="color: var(--text-muted);">Draft text assets seamlessly within our secure, clean, and rhythm-isolated composition terminal workstation pad.</p>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop" alt="Cryptographic Token Parsing">
+                </div>
+                <div class="step-meta-row">
+                    <h3>Authenticate</h3>
+                    <h2>02</h2>
+                </div>
+                <p style="color: var(--text-muted);">Biometric sequence diagnostics verify genuine text production records, establishing verified human authenticity for your portfolio.</p>
+            </div>
+            
+            <div class="process-step">
+                <div class="step-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?q=80&w=600&auto=format&fit=crop" alt="Secure Document Export System">
+                </div>
+                <div class="step-meta-row">
+                    <h3>Seal Deliverable</h3>
+                    <h2>03</h2>
+                </div>
+                <p style="color: var(--text-muted);">Export an immutable cryptographic verification badge or structured PDF validation brief directly to high-value buyers.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="plans">
+        <div style="text-align: center; margin-bottom: 70px;">
+            <h2 style="font-size: 2.8rem; margin-bottom: 15px;">Integrity Plans</h2>
+            <p style="color: var(--text-muted);">Transparent pricing for individual authors and team suites.</p>
+        </div>
+        <div id="pricing-matrix-container" class="grid-2"></div>
+    </section>
+
+    <section class="feedback-section-container">
+        <h2 style="font-size: 2.5rem; color: #fff;">Connect with Compliance</h2>
+        <p style="color: var(--text-muted); margin-top: 10px; max-width: 600px; margin-left: auto; margin-right: auto;">
+            Have a system suggestion, specialized feature request, or account inquiry? Select an operations link below to outline your parameters.
+        </p>
+
+        <div class="feedback-card-wrapper">
+            <a href="mailto:provenantforensics@outlook.com?subject=Provenant™%20Platform%20Suggestion&body=Hey%20Provenant™%20Forensics%20Team,%0A%0AI%20have%20a%20suggestion%20regarding the Forensic Integrity Workstation layout:%0A" class="feedback-node-card">
+                <span style="font-size: 2rem;">💡</span>
+                <h4>Make a Suggestion</h4>
+                <p>Propose changes to our keyboard cadence algorithms or workspace styling controls.</p>
+            </a>
+
+            <a href="mailto:provenantforensics@outlook.com?subject=Provenant™%20Integration%20Request&body=Hey%20Provenant™%20Forensics%20Team,%0A%0AI%20would%20like%20to%20request%20an%20integration tracking pipeline for the following framework:%0A" class="feedback-node-card">
+                <span style="font-size: 2rem;">🔌</span>
+                <h4>Request Feature</h4>
+                <p>Request bespoke integrations for private learning environments or publishing CMS nodes.</p>
+            </a>
+
+            <a href="mailto:provenantforensics@outlook.com?subject=Provenant™%20Priority%20Support%20/%20Complaint&body=Hey%20Provenant™%20Forensics%20Team,%0A%0AI%20am%20encountering%20the%20following%20issue%20with my active token sandbox or checkout link logic:%0A" class="feedback-node-card" style="border-color: rgba(239, 68, 68, 0.15);">
+                <span style="font-size: 2rem;">⚠️</span>
+                <h4 style="color: #f43f5e;">Report an Issue</h4>
+                <p>Submit a priority support log regarding transactional system bugs, validation errors, or renewal streams.</p>
+            </a>
+        </div>
+    </section>
+
+    <footer>
+        <div style="margin-bottom: 20px;" class="footer-links">
+            <a href="/terms.html" style="color: var(--text-muted); text-decoration: none; margin: 0 10px;">Terms of Service</a> | 
+            <a href="/privacy.html" style="color: var(--text-muted); text-decoration: none; margin: 0 10px;">Privacy Policy</a>
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px; opacity: 0.8;">
+            <svg width="24" height="24" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M35 25V75M35 25H60C70 25 75 32 75 42C75 52 70 59 60 59H35" stroke="var(--brand-writer)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span style="font-weight: 900; font-size: 18px; letter-spacing: -0.5px; color: #fff;">
+                PROVEN<span style="color: var(--brand-writer);">ANT</span>™
+            </span>
+        </div>
+        <p style="color: var(--text-muted); font-size: 13px;">
+            &copy; 2026 Provenant™. All rights reserved. The Global Standard for Human-Created Content and Forensic Biometric Origin Verification.
+        </p>
+    </footer>
+
+    <!-- Client Sign In Modal -->
+    <div id="login-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: #1e293b; border: 1px solid rgba(255,255,255,0.1); width: 90%; max-width: 480px; border-radius: 24px; padding: 40px; position: relative; color: white;">
+            <button onclick="closeLoginModal()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 20px;">✕</button>
+            
+            <h2 style="font-size: 1.8rem; margin-bottom: 8px;">Client Sign In</h2>
+            <p style="color: var(--text-muted); margin-bottom: 25px; font-size: 14px;">Enter your credentials to access your active writing workstation.</p>
+            
+            <form onsubmit="event.preventDefault(); handleLoginSubmit();">
+                <label style="font-size: 12px; font-weight: bold; color: var(--text-muted);">Select Workspace Tier</label>
+                <select id="login-tier-select" class="modal-input">
+                    <option value="writers">Writers Tier Workspace</option>
+                    <option value="enterprise">Editorial Enterprise Suite</option>
+                </select>
+
+                <label style="font-size: 12px; font-weight: bold; color: var(--text-muted);">Email Address</label>
+                <input type="email" id="login-email-input" class="modal-input" placeholder="name@company.com" required>
+
+                <label style="font-size: 12px; font-weight: bold; color: var(--text-muted);">Password</label>
+                <input type="password" id="login-password-input" class="modal-input" placeholder="••••••••" required>
+
+                <div id="login-error-msg" style="color: #ef4444; font-size: 12px; display: none; margin-bottom: 15px;">
+                    Please enter a valid Email and Password.
+                </div>
+
+                <button type="submit" class="action-btn" style="width: 100%; background: var(--brand-writer); color: white; margin-top: 5px;">Sign In to Workstation →</button>
+            </form>
+
+            <div style="text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted);">
+                Don't have an active subscription? <a href="#plans" onclick="closeLoginModal()" style="color: var(--brand-writer); text-decoration: none; font-weight: bold;">View Plans & Pricing</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trial/Checkout Modal -->
+    <div id="trial-modal" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(8px); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: #1e293b; border: 1px solid rgba(255,255,255,0.1); width: 90%; max-width: 600px; border-radius: 24px; padding: 50px; position: relative; color: white;">
+            <button onclick="closeTrial()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: #94a3b8; cursor: pointer; font-size: 20px;">✕</button>
+            <h2 style="font-size: 2rem; margin-bottom: 10px;">Explore <span id="modal-plan-name" style="color: var(--brand-writer);">Plan</span> for free</h2>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">Get the apps, security, and forensic storage you need to accomplish your goals.</p>
+            <div style="display: flex; gap: 15px; margin-bottom: 40px;">
+                <button class="action-btn" id="modal-primary-action" style="background: var(--brand-writer); color: white;" onclick="proceedToCheckout()">Start your free trial</button>
+                <button class="action-btn" id="modal-secondary-action" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.1);" onclick="proceedToCheckout()">Buy now</button>
+            </div>
+            <div style="text-align: left; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 30px; font-size: 13px; color: var(--text-muted);">
+                <p style="color: white; font-weight: bold; margin-bottom: 10px;">It’s time to sign up for free. You can cancel anytime.</p>
+                <p>Note that you'll be asked to provide a method of payment so there's no interruption in your service after 30 days. After the trial, <span id="modal-plan-desc">this plan</span> is <b id="modal-plan-price">$0.00</b>. Subscription can be easily canceled by turning off recurring billing.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const pricingPlans = [
+            { 
+                name: 'Writers Tier', 
+                price: '$14.99', 
+                sub: 'Individual Author Sandbox Workspace', 
+                featured: true, 
+                features: ['Secure Rhythm-Isolated Writing Pad', 'Biometric Typing Behavioral Reports', 'Cryptographic PDF Origin Validation Seals'] 
+            },
+            { 
+                name: 'Editorial Enterprise Suite', 
+                price: '$89.00', 
+                sub: 'For Multi-Author Writing Teams, Research Groups & Agencies', 
+                featured: false, 
+                features: ['Includes 5 Core Team Workstations', 'Shared Client Verification Portals', 'Centralized Content Integrity Audits', 'API Verification Endpoint Triggers'] 
+            }
+        ];
+
+        function renderPricing() {
+            const pricingMatrix = document.getElementById('pricing-matrix-container');
+            pricingMatrix.innerHTML = ''; 
+
+            pricingPlans.forEach(card => {
+                const cardEl = document.createElement('div');
+                cardEl.className = `pricing-card ${card.featured ? 'featured' : ''}`;
+                
+                const btnStyles = card.featured 
+                    ? "background: var(--brand-writer); color: white; box-shadow: 0 6px 15px rgba(59,130,246,0.3);" 
+                    : "background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1);";
+
+                cardEl.innerHTML = `
+                    <h3 style="${card.featured ? 'color: var(--brand-writer);' : ''}">${card.name}</h3>
+                    <p style="color: var(--text-muted); font-size: 14px;">${card.sub}</p>
+                    <div class="price">${card.price}<span>/mo</span></div>
+                    <button class="action-btn" style="${btnStyles}" onclick="openTrial('${card.name}', '${card.price}')">Start Free Trial</button>
+                    <ul class="feature-list" style="margin-top:30px;">
+                        ${card.features.map(f => `<li>${f}</li>`).join('')}
+                    </ul>
+                `;
+                pricingMatrix.appendChild(cardEl);
+            });
+        }
+
+        let activeSelectedPlanForCheckout = "Writers Tier";
+
+        function openTrial(planName, planPrice) {
+            activeSelectedPlanForCheckout = planName;
+            
+            document.getElementById('modal-plan-name').innerText = planName;
+            document.getElementById('modal-plan-desc').innerText = planName;
+            document.getElementById('modal-plan-price').innerText = planPrice;
+            
+            document.getElementById('trial-modal').style.display = 'flex';
+        }
+
+        function proceedToCheckout() {
+            window.location.href = `checkout.html?plan=${encodeURIComponent(activeSelectedPlanForCheckout)}`;
+        }
+
+        function closeTrial() {
+            document.getElementById('trial-modal').style.display = 'none';
+        }
+
+        /* Client Login Modal Controls */
+        function openLoginModal() {
+            document.getElementById('login-modal').style.display = 'flex';
+            document.getElementById('login-error-msg').style.display = 'none';
+        }
+
+        function closeLoginModal() {
+            document.getElementById('login-modal').style.display = 'none';
+        }
+
+        function handleLoginSubmit() {
+            const tier = document.getElementById('login-tier-select').value;
+            const email = document.getElementById('login-email-input').value.trim();
+            const password = document.getElementById('login-password-input').value.trim();
+            const errorMsg = document.getElementById('login-error-msg');
+
+            if (!email || !password) {
+                errorMsg.innerText = "Please enter both Email and Password fields.";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // Verify credentials strictly against the registered user profile in localStorage
+            const savedUserJson = localStorage.getItem(`provenant_user_${email}`);
+            
+            if (!savedUserJson) {
+                errorMsg.innerText = "No account found with this email address. Please complete checkout first.";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            const user = JSON.parse(savedUserJson);
+            if (user.password !== password) {
+                errorMsg.innerText = "Incorrect password. Please verify your credentials.";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            // Store active session state locally only if credentials match
+            localStorage.setItem('provenant_current_user', email);
+            localStorage.setItem('provenant_newsroom_session', 'active');
+
+            if (tier === 'enterprise') {
+                window.location.href = 'Editorial-writingpad.html';
+            } else {
+                window.location.href = 'Editorial-writingpad.html';
+            }
+        }
+
+        window.onload = function() {
+            renderPricing();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Authorization | Provenant™</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap">
+    <style>
+        :root {
+            --brand-dark: #0f172a;
+            --brand-accent: #00b894;
+            --brand-writer: #3b82f6;
+            --text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0b1120;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .nav-header {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .key-banner {
+            display: none;
+            background: rgba(0, 184, 148, 0.1);
+            border: 1px solid var(--brand-accent);
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 650px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 184, 148, 0.15);
+        }
+
+        .key-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #0f172a;
+            border: 1px dashed var(--brand-accent);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--brand-accent);
+            margin: 10px 0;
+        }
+
+        .copy-btn {
+            background: var(--brand-accent);
+            color: var(--brand-dark);
+            border: none;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+
+        .auth-card {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 650px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .auth-card h2 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+
+        .auth-card p {
+            color: var(--text-muted);
+            margin-bottom: 30px;
+            font-size: 15px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 16px 20px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            flex: 1;
+            min-width: 240px;
+        }
+
+        input:focus { border-color: var(--brand-accent); }
+
+        .verify-btn, .launch-btn {
+            background: var(--brand-accent);
+            color: var(--brand-dark);
+            border: none;
+            padding: 16px 32px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s ease;
+        }
+
+        .verify-btn:hover, .launch-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+        .access-panel {
+            display: none;
+            width: 100%;
+            max-width: 650px;
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 50px 40px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav-header">
+        <a href="index.html" style="color: var(--text-muted); text-decoration: none; font-size: 14px; font-weight: 600;">← Back to Main Hub</a>
+    </div>
+
+    <div class="key-banner" id="manager-success-banner">
+        <h3 style="color: #fff; font-size: 1.2rem; margin-bottom: 5px;">🎉 Subscription Activated!</h3>
+        <p style="color: var(--text-muted); font-size: 13px;">Here is your Master Editorial License Token. Share this code with your writing and research teams to give them access to the writing pad.</p>
+        <div>
+            <div class="key-badge">
+                <span id="token-text">NEWSROOM2026</span>
+                <button class="copy-btn" onclick="copyToken()">Copy Key</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-card" id="auth-gate">
+        <h2>Editorial Enterprise Authorization</h2>
+        <p>This high-volume tier requires key validation.</p>
+        
+        <div class="form-row">
+            <input type="password" id="license-key-input" placeholder="Enter License Token">
+            <button class="verify-btn" onclick="validateKey()">Verify Token</button>
+        </div>
+
+        <div style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 20px;">
+            <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">
+                Subscribed but missing your team key?
+            </p>
+            <a href="mailto:provenantforensics@outlook.com?subject=Editorial%20Enterprise%20License%20Key%20Retrieval%20Request&body=Hello%20Provenant%20Team,%0A%0AI%20recently%20subscribed%20to%20the%20Editorial%20Enterprise%20Suite%20and%20need%20my%20Enterprise%20Authorization%20Token.%0A%0AAccount%20Email:%20%0AOrganization%20Name:%20" 
+                style="color: var(--brand-writer); font-size: 13px; font-weight: bold; text-decoration: none;">
+                📩 Request Key Retrieval from Operations
+            </a>
+        </div>
+    </div>
+
+    <div class="access-panel" id="access-panel">
+        <h2 style="font-size: 2rem; font-weight: 900; margin-bottom: 10px;">Access Granted</h2>
+        <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 30px;">Your session is authenticated. You can proceed directly to your editorial workspace.</p>
+        <a href="Editorial-writingpad.html" class="launch-btn">Launch Editorial Workspace →</a>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isUnlockedByRedirect = urlParams.get('unlocked') === 'true';
+            const isSavedSession = localStorage.getItem('provenant_newsroom_session') === 'active';
+
+            if (isUnlockedByRedirect) {
+                document.getElementById('manager-success-banner').style.display = 'block';
+            }
+
+            if (isUnlockedByRedirect || isSavedSession) {
+                showAccessPanel();
+            }
+        };
+
+        function validateKey() {
+            const inputKey = document.getElementById('license-key-input').value.trim();
+            
+            if (inputKey === "NEWSROOM2026") {
+                localStorage.setItem('provenant_newsroom_session', 'active');
+                window.location.href = "Editorial-writingpad.html";
+            } else {
+                alert("Invalid Token. Please check your enterprise license code.");
+            }
+        }
+
+        function showAccessPanel() {
+            document.getElementById('auth-gate').style.display = 'none';
+            document.getElementById('access-panel').style.display = 'block';
+        }
+
+        function copyToken() {
+            const tokenText = document.getElementById('token-text').innerText;
+            navigator.clipboard.writeText(tokenText);
+            const copyBtn = document.querySelector('.copy-btn');
+            copyBtn.innerText = 'Copied!';
+            setTimeout(() => { copyBtn.innerText = 'Copy Key'; }, 2000);
+        }
+    </script>
+</body>
+</html>

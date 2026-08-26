@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6B0NP15RYC"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-6B0NP15RYC');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provenant Content Authentication Workspace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700;800;900&family=Fira+Code:wght=400;500&display=swap" rel="stylesheet">
+     
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(225, 29, 72, 0.3); border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-[#05070f] text-[#f8fafc] min-h-screen p-4 md:p-8 flex items-center justify-center selection:bg-rose-500 selection:text-white relative">
+
+    <div class="w-full max-w-4xl flex flex-col items-center gap-8 text-center">
+         
+        <div class="max-w-2xl space-y-3">
+            <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                Provenant™ Mobile
+            </h2>
+            <p class="text-sm text-slate-400">
+                Protect your digital intellectual property seamlessly. Producing a verified original asset profile.
+            </p>
+        </div>
+
+        <div class="flex justify-center w-full">
+            <div id="phone-container" class="relative w-[350px] h-[720px] bg-slate-950 rounded-[48px] border-[10px] border-slate-900 shadow-[0_25px_60px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col justify-between p-3 select-none">
+                 
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-36 h-6 bg-slate-900 rounded-b-2xl z-[100] flex items-center justify-between px-5 text-[9px] font-bold text-white/90">
+                    <span class="text-[8px] -ml-1">10:55</span>
+                    <div class="w-14 h-3 bg-black rounded-full mx-auto"></div>
+                    <div class="flex items-center gap-1 -mr-1"><span>5G</span></div>
+                </div>
+
+                <div id="media-viewport" class="relative w-full h-[450px] rounded-[28px] overflow-hidden mt-5 bg-black border border-white/5 flex items-center justify-center">
+                    <div id="active-media-bg" class="absolute inset-0 bg-cover bg-center transition-all duration-300 flex items-center justify-center z-10" style="background-image: url('https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop');"></div>
+                    <video id="active-media-video" class="absolute inset-0 w-full h-full object-cover hidden z-10" loop muted playsinline webkit-playsinline></video>
+                    <video id="provenant-camera-stream" class="absolute inset-0 w-full h-full object-cover hidden z-10" autoplay playsinline muted></video>
+                    
+                    <input type="file" id="device-photo-picker" accept="image/*,video/*" class="hidden" onchange="handleFileSelection(event)">
+
+                    <div id="camera-timer-overlay" class="absolute inset-0 bg-black/60 hidden flex-col items-center justify-center z-50 transition-all">
+                        <span id="camera-timer-number" class="text-7xl font-black text-rose-500 scale-75 transition-all duration-300 animate-pulse">3</span>
+                    </div>
+
+                    <button onclick="toggleVideoPlayback(event)" id="video-playback-overlay" class="absolute inset-0 bg-black/20 hidden items-center justify-center z-30 transition-all hover:bg-black/40">
+                        <div class="w-12 h-12 rounded-full bg-black/70 border border-white/10 flex items-center justify-center shadow-2xl transition-transform active:scale-95">
+                            <svg id="playback-icon-play" class="w-5 h-5 text-white ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                            <svg id="playback-icon-pause" class="w-5 h-5 text-white hidden" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                            </svg>
+                        </div>
+                    </button>
+
+                    <div id="recording-clock-badge" class="absolute top-4 left-4 right-4 bg-black/70 border border-rose-500/30 text-rose-500 font-mono text-[10px] font-bold px-3 py-1.5 rounded-full flex items-center justify-between hidden z-40 animate-pulse">
+                        <div class="flex items-center gap-1.5">
+                            <div class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></div>
+                            <span>REC <span id="recording-clock-val">0:10</span></span>
+                        </div>
+                        <button onclick="stopRecordingEarly(event)" class="bg-rose-600 hover:bg-rose-500 text-white font-sans font-black text-[8px] px-2 py-0.5 rounded uppercase tracking-wider transition-colors pointer-events-auto">🔴 Stop</button>
+                    </div>
+
+                    <div id="scan-radar-screen" class="absolute inset-0 bg-rose-500/10 backdrop-blur-[1px] hidden flex-col items-center justify-center gap-2 z-40">
+                        <div class="w-10 h-10 border-4 border-rose-500 border-t-transparent rounded-full animate-spin"></div>
+                        <span id="scan-radar-text" class="text-[9px] font-mono tracking-wildest text-white uppercase font-black bg-rose-600/90 px-2.5 py-1 rounded">Verifying Original Signature</span>
+                    </div>
+
+                    <div id="camera-rules-grid" class="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none opacity-20 z-30">
+                        <div class="border-r border-b border-white/30"></div><div class="border-r border-b border-white/30"></div><div class="border-b border-white/30"></div>
+                        <div class="border-r border-b border-white/30"></div><div class="border-r border-b border-white/30"></div><div class="border-b border-white/30"></div>
+                        <div class="border-r border-white/30"></div><div class="border-r border-white/30"></div><div></div>
+                    </div>
+
+                    <div id="sim-watermark-pill" class="absolute bg-black/80 border border-white/10 rounded-full pl-2.5 pr-3.5 py-1.5 flex items-center gap-2 shadow-2xl backdrop-blur-md cursor-grab active:cursor-grabbing select-none hidden z-50 transition-opacity duration-200" style="left: 15%; top: 20%;">
+                        <div class="text-[10px] text-slate-500 font-bold -mr-0.5 opacity-60 pointer-events-none">⋮⋮</div>
+                        <div class="w-4 h-4 text-emerald-400 flex items-center justify-center animate-pulse pointer-events-none">
+                            <svg class="w-full h-full" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 2a10 10 0 00-10 10m10-10a10 10 0 0110 10M12 2v4m0 0a6 6 0 00-6 6m6-6a6 6 0 016 6M9 12a3 3 0 016 0m-6 0c0 1.657 1.343 3 3 3s3-1.343 3-3m-6 6a6 6 0 0012 0m-12 0v2m6-2v4" />
+                            </svg>
+                        </div>
+                        <div class="flex flex-col text-left leading-none pointer-events-none">
+                            <span id="sim-watermark-text" class="text-[9px] font-black text-white uppercase tracking-wildest">VERIFIED HUMAN</span>
+                            <span class="text-[7px] text-emerald-400 font-mono font-bold tracking-wider mt-0.5">100% ORIGINAL</span>
+                        </div>
+                    </div>
+
+                    <div id="timeline-secs-tag" class="absolute bottom-3 right-3 bg-black/60 border border-white/10 px-2 py-1 rounded text-[8px] font-mono text-slate-300 hidden z-30">
+                        SIM TIME: <span id="sim-sec-val">0.0s</span>
+                    </div>
+                </div>
+
+                <div class="flex-grow flex flex-col justify-center px-1 py-1 text-left">
+                    <div id="tab-pane-capture" class="space-y-2">
+                        <!-- Responsive 2-Button Action Grid -->
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <button onclick="triggerLiveCamera('image')" id="media-opt-cam" class="py-2 px-1 rounded-xl text-[10px] font-black border bg-slate-950/40 border-white/5 text-slate-300 flex flex-col items-center justify-center gap-1 transition-colors hover:border-rose-500">
+                                <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 a4.5 4.5 0 0 1 9 0Z" />
+                                </svg>
+                                <span>Picture</span>
+                            </button>
+                             
+                            <button onclick="triggerLiveCamera('video')" id="media-opt-reel" class="py-2 px-1 rounded-xl text-[10px] font-black border bg-slate-950/40 border-white/5 text-slate-300 flex flex-col items-center justify-center gap-1 transition-colors hover:border-rose-500">
+                                <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z" />
+                                </svg>
+                                <span>Record Reel</span>
+                            </button>
+                        </div>
+
+                        <button onclick="triggerDevicePicker()" id="media-opt-img" class="w-full py-2.5 rounded-xl text-[11px] font-black border bg-slate-950/60 border-white/5 text-slate-400 flex items-center justify-center gap-1.5 transition-colors hover:border-sky-500">📂 Upload Photos & Videos</button>
+                         
+                        <div class="bg-blue-500/5 border border-blue-500/20 rounded-xl p-3 text-[10px] text-slate-400 text-left space-y-1">
+                            <span class="font-bold text-blue-400 uppercase tracking-wider block">💡 Quick Upload Guide:</span>
+                            <p>Upload works if taken on devices with signature chips (like Google Pixel 10 or Samsung S25/S26).</p>
+                            <p class="text-emerald-400 font-bold mt-1">On iPhones or studio gear? Use the live capture targets above to verify instantly!</p>
+                        </div>
+                    </div>
+
+                    <div id="tab-pane-editor" class="hidden space-y-2">
+                        <div class="bg-slate-900/40 border border-white/5 rounded-xl p-2.5 space-y-2">
+                            <div>
+                                <label class="text-[9px] text-slate-400 uppercase font-bold">Creator Label</label>
+                                <input type="text" id="creator-input" oninput="syncPersonalizedText()" value="Verified Human" class="w-full bg-slate-950/60 border border-white/10 px-2 py-1.5 rounded-lg text-xs text-white outline-none focus:border-rose-500 mt-0.5">
+                            </div>
+                            
+                            <!-- ISRC Code & PRO Publishing Metadata Integration Inputs -->
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="text-[9px] text-slate-400 uppercase font-bold">ISRC Code</label>
+                                    <input type="text" id="isrc-input" placeholder="US-S1Z-26-00001" class="w-full bg-slate-950/60 border border-white/10 px-2 py-1 rounded-lg text-[11px] text-emerald-400 font-mono outline-none focus:border-rose-500 mt-0.5">
+                                </div>
+                                <div>
+                                    <label class="text-[9px] text-slate-400 uppercase font-bold">PRO / Publisher ID</label>
+                                    <input type="text" id="pro-publisher-input" placeholder="BMI / ASCAP #10928" class="w-full bg-slate-950/60 border border-white/10 px-2 py-1 rounded-lg text-[11px] text-sky-400 font-mono outline-none focus:border-rose-500 mt-0.5">
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between items-center text-[9px] text-slate-400 font-bold">
+                                    <span>Fade Duration</span><span class="text-rose-400 font-mono font-bold" id="fade-time-lbl">3s</span>
+                                </div>
+                                <input type="range" id="fade-slider" min="1" max="6" step="0.5" value="3" oninput="updateFadeDuration()" class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer mt-1 accent-rose-500">
+                            </div>
+
+                            <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-2 text-[9px] text-emerald-300 font-mono flex items-center justify-between">
+                                <span>🎵 Acoustic Soft-Binding:</span>
+                                <span class="font-bold text-white uppercase">ACTIVE (c2pa.soft_binding.v1)</span>
+                            </div>
+
+                            <p class="text-[9px] text-slate-500 italic text-center mt-0.5">✨ Drag the badge overlay anywhere on the screen layout container</p>
+                        </div>
+                    </div>
+
+                    <div id="tab-pane-export" class="hidden space-y-2">
+                        <button onclick="downloadFlattenedMedia()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 py-3 rounded-xl font-extrabold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-lg">📥 Save & Download to Phone</button>
+                    </div>
+                </div>
+
+                <div class="w-full grid grid-cols-2 gap-4 px-4 py-2 border-t border-white/5 bg-slate-950/90 rounded-b-[36px] z-10">
+                    <button onclick="resetToCameraTab()" id="nav-btn-capture" class="flex flex-col items-center gap-1 text-rose-500 py-1 transition-colors">
+                        <div class="p-1.5 rounded-xl bg-white/5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
+                        </div>
+                        <span id="nav-btn-capture-lbl" class="text-[8px] font-bold uppercase tracking-wider">Retake Asset</span>
+                    </button>
+
+                    <button onclick="switchTab('export')" id="nav-btn-export" class="flex flex-col items-center gap-1 text-slate-400 py-1 transition-colors">
+                        <div class="p-1.5 rounded-xl bg-white/5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+                            </svg>
+                        </div>
+                        <span class="text-[8px] font-bold uppercase tracking-wider">Download</span>
+                    </button>
+                </div>
+                <div class="absolute bottom-1 left-1/2 -translate-x-1/2 w-28 h-1 bg-white/20 rounded-full"></div>
+            </div>
+        </div>
+
+        <div class="w-full max-w-sm bg-slate-950/80 border border-white/5 rounded-2xl p-4 font-mono text-[10px] text-sky-400 space-y-1 h-24 overflow-y-auto custom-scroll text-left">
+            <div id="radar-log-1">> Provenant OS Companion Workspace [active]</div>
+            <div id="radar-log-2" class="opacity-60">> Awaiting verification handshake...</div>
+            <div id="radar-log-3" class="opacity-40"></div><div id="radar-log-4" class="opacity-20"></div>
+        </div>
+    </div>
+
+    <div id="custom-toast" class="fixed bottom-6 right-6 bg-slate-900 border border-white/10 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 opacity-0 translate-y-4 pointer-events-none transition-all duration-300 z-[200]">
+        <div class="w-2 h-2 rounded-full bg-rose-500 animate-ping" id="toast-ping-dot"></div>
+        <span id="toast-message-text" class="text-xs font-semibold">Processing...</span>
+    </div>
+
+    <script>
+        let mockMediaType = 'image'; let isSecuredSigned = false; let isSigningProcessActive = false;
+        let selectedTab = 'capture'; let fadeSeconds = 3; let timelineInterval = null; let timelineCurrentSecs = 0.0;
+        let localMediaStream = null; var currentOffsetX = 15; var currentOffsetY = 20;
+        let sampleDataURIs = { image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=600&auto=format&fit=crop', video: '' };
+        let recordingClockInterval = null;
+        let nativeMediaRecorder = null;
+        let recordedVideoChunks = [];
+        let capturedLiveFileBlob = null; 
+
+        const dragItem = document.getElementById("sim-watermark-pill");
+        const dragContainer = document.getElementById("media-viewport");
+        let activeDragging = false;
+        let currentX, currentY, initialX, initialY;
+        let xOffset = 0, yOffset = 0;
+
+        dragContainer.addEventListener("touchstart", dragStart, {passive: false});
+        dragContainer.addEventListener("touchend", dragEnd, {passive: false});
+        dragContainer.addEventListener("touchmove", drag, {passive: false});
+        dragContainer.addEventListener("mousedown", dragStart, false);
+        dragContainer.addEventListener("mouseup", dragEnd, false);
+        dragContainer.addEventListener("mousemove", drag, false);
+
+        function dragStart(e) {
+            if (selectedTab === 'capture' || !isSecuredSigned) return;
+            let clientX = e.type === "touchstart" ? e.touches[0].clientX : e.clientX;
+            let clientY = e.type === "touchstart" ? e.touches[0].clientY : e.clientY;
+            
+            if (e.target === dragItem) {
+                activeDragging = true;
+                const rect = dragItem.getBoundingClientRect();
+                const containerRect = dragContainer.getBoundingClientRect();
+                xOffset = rect.left - containerRect.left;
+                yOffset = rect.top - containerRect.top;
+                initialX = clientX - xOffset;
+                initialY = clientY - yOffset;
+            }
+        }
+
+        function dragEnd() {
+            if (!activeDragging) return;
+            activeDragging = false;
+            const containerRect = dragContainer.getBoundingClientRect();
+            const itemRect = dragItem.getBoundingClientRect();
+            currentOffsetX = ((itemRect.left - containerRect.left) / containerRect.width) * 100;
+            currentOffsetY = ((itemRect.top - containerRect.top) / containerRect.height) * 100;
+        }
+
+        function drag(e) {
+            if (!activeDragging) return;
+            e.preventDefault();
+            let clientX = e.type === "touchmove" ? e.touches[0].clientX : e.clientX;
+            let clientY = e.type === "touchmove" ? e.touches[0].clientY : e.clientY;
+            
+            currentX = clientX - initialX;
+            currentY = clientY - initialY;
+
+            const containerRect = dragContainer.getBoundingClientRect();
+            const itemRect = dragItem.getBoundingClientRect();
+
+            if (currentX < 0) currentX = 0;
+            if (currentY < 0) currentY = 0;
+            if (currentX + itemRect.width > containerRect.width) currentX = containerRect.width - itemRect.width;
+            if (currentY + itemRect.height > containerRect.height) currentY = containerRect.height - itemRect.height;
+
+            dragItem.style.left = currentX + "px";
+            dragItem.style.top = currentY + "px";
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('custom-toast');
+            document.getElementById('toast-message-text').innerText = message;
+            toast.classList.remove('opacity-0', 'translate-y-4', 'pointer-events-none');
+            setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-4', 'pointer-events-none'); }, 4000);
+        }
+
+        function writeRadarLog(lineText, type = 'neutral') {
+            const logTarget = document.getElementById('radar-log-1');
+            document.getElementById('radar-log-4').innerHTML = document.getElementById('radar-log-3').innerHTML;
+            document.getElementById('radar-log-4').className = document.getElementById('radar-log-3').className;
+            document.getElementById('radar-log-3').innerHTML = document.getElementById('radar-log-2').innerHTML;
+            document.getElementById('radar-log-3').className = document.getElementById('radar-log-2').className;
+            document.getElementById('radar-log-2').innerHTML = logTarget.innerHTML;
+            document.getElementById('radar-log-2').className = logTarget.className;
+            
+            logTarget.innerHTML = `> ${lineText}`;
+            if (type === 'success') logTarget.className = 'text-emerald-400 font-bold';
+            else if (type === 'warning') logTarget.className = 'text-yellow-500 font-medium';
+            else if (type === 'danger') logTarget.className = 'text-rose-500 font-bold';
+            else logTarget.className = 'text-sky-400';
+        }
+
+        function switchTab(targetTab) {
+            if (isSigningProcessActive) return;
+
+            if (targetTab !== 'capture' && localMediaStream) {
+                if (nativeMediaRecorder && nativeMediaRecorder.state !== 'inactive') {
+                    nativeMediaRecorder.stop();
+                }
+                localMediaStream.getTracks().forEach(track => track.stop());
+                localMediaStream = null;
+                document.getElementById('provenant-camera-stream').classList.add('hidden');
+                document.getElementById('recording-clock-badge').classList.replace('flex', 'hidden');
+                clearInterval(recordingClockInterval);
+            }
+
+            selectedTab = targetTab;
+            document.getElementById('tab-pane-capture').classList.add('hidden');
+            document.getElementById('tab-pane-editor').classList.add('hidden');
+            document.getElementById('tab-pane-export').classList.add('hidden');
+            document.getElementById(`tab-pane-${targetTab}`).classList.remove('hidden');
+
+            const captureBtn = document.getElementById('nav-btn-capture');
+            const exportBtn = document.getElementById('nav-btn-export');
+
+            if (targetTab === 'capture') {
+                captureBtn.className = 'flex flex-col items-center gap-1 text-rose-500 py-1 transition-colors';
+                exportBtn.className = 'flex flex-col items-center gap-1 text-slate-400 py-1 transition-colors';
+            } else if (targetTab === 'export') {
+                captureBtn.className = 'flex flex-col items-center gap-1 text-slate-400 py-1 transition-colors';
+                exportBtn.className = 'flex flex-col items-center gap-1 text-rose-500 py-1 transition-colors';
+            } else {
+                captureBtn.className = 'flex flex-col items-center gap-1 text-slate-400 py-1 transition-colors';
+                exportBtn.className = 'flex flex-col items-center gap-1 text-slate-400 py-1 transition-colors';
+            }
+
+            const watermark = document.getElementById('sim-watermark-pill');
+            const grid = document.getElementById('camera-rules-grid');
+            const playbackOverlay = document.getElementById('video-playback-overlay');
+
+            if (targetTab === 'capture') {
+                watermark.classList.add('hidden');
+                grid.classList.remove('opacity-0');
+                playbackOverlay.classList.replace('flex', 'hidden');
+            } else {
+                watermark.classList.remove('hidden');
+                grid.classList.add('opacity-0');
+                
+                if (mockMediaType === 'video') {
+                    playbackOverlay.classList.replace('hidden', 'flex');
+                    document.getElementById('playback-icon-play').classList.remove('hidden');
+                    document.getElementById('playback-icon-pause').classList.add('hidden');
+                } else {
+                    playbackOverlay.classList.replace('flex', 'hidden');
+                }
+
+                writeRadarLog("Biometric hallmark badge loaded into primary screen layout coordinates.", "success");
+                triggerWatermarkSimulation();
+            }
+        }
+
+        function toggleVideoPlayback(event) {
+            if (event) event.stopPropagation();
+            const videoElement = document.getElementById('active-media-video');
+            const playIcon = document.getElementById('playback-icon-play');
+            const pauseIcon = document.getElementById('playback-icon-pause');
+
+            if (videoElement.paused) {
+                videoElement.play();
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                writeRadarLog("Review loop playback resumed.");
+            } else {
+                videoElement.pause();
+                pauseIcon.classList.add('hidden');
+                playIcon.classList.remove('hidden');
+                writeRadarLog("Review loop playback paused.");
+            }
+        }
+
+        function resetToCameraTab() {
+            isSecuredSigned = false;
+            capturedLiveFileBlob = null;
+            document.getElementById('sim-watermark-pill').classList.add('hidden');
+            document.getElementById('recording-clock-badge').classList.replace('flex', 'hidden');
+            document.getElementById('video-playback-overlay').classList.replace('flex', 'hidden');
+            clearInterval(recordingClockInterval);
+
+            if (localMediaStream) {
+                localMediaStream.getTracks().forEach(track => track.stop());
+                localMediaStream = null;
+            }
+            document.getElementById('provenant-camera-stream').classList.add('hidden');
+            
+            currentOffsetX = 15; currentOffsetY = 20;
+            dragItem.style.left = "15%"; dragItem.style.top = "20%";
+
+            switchTab('capture');
+            document.getElementById('nav-btn-capture-lbl').innerText = "Retake Asset";
+            writeRadarLog("Workspace state fully reset.");
+        }
+
+        async function triggerLiveCamera(mode) {
+            if (isSigningProcessActive) return;
+            mockMediaType = mode;
+            recordedVideoChunks = [];
+            capturedLiveFileBlob = null;
+            
+            writeRadarLog(`Initializing hardware ${mode} stream parameters...`, "warning");
+            const webCamNode = document.getElementById('provenant-camera-stream');
+            const imgNode = document.getElementById('active-media-bg');
+            
+            try {
+                localMediaStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'user' }, 
+                    audio: mode === 'video' 
+                });
+                imgNode.classList.add('hidden');
+                webCamNode.classList.remove('hidden');
+                webCamNode.srcObject = localMediaStream;
+                writeRadarLog("Camera viewfinder streaming live.", "success");
+
+                if (mode === 'video') {
+                    const clockBadge = document.getElementById('recording-clock-badge');
+                    const clockVal = document.getElementById('recording-clock-val');
+                    clockBadge.classList.replace('hidden', 'flex');
+                    
+                    nativeMediaRecorder = new MediaRecorder(localMediaStream);
+                    nativeMediaRecorder.ondataavailable = (event) => {
+                        if (event.data && event.data.size > 0) {
+                            recordedVideoChunks.push(event.data);
+                        }
+                    };
+                    
+                    nativeMediaRecorder.onstop = () => {
+                        const mimeType = 'video/mp4';
+                        capturedLiveFileBlob = new Blob(recordedVideoChunks, { type: mimeType });
+                        
+                        sampleDataURIs.video = URL.createObjectURL(capturedLiveFileBlob);
+                        const vidNode = document.getElementById('active-media-video');
+                        vidNode.classList.remove('hidden');
+                        vidNode.src = sampleDataURIs.video;
+                        vidNode.pause();
+                        vidNode.currentTime = 0;
+
+                        executeSigningSequence();
+                    };
+
+                    nativeMediaRecorder.start();
+                    
+                    let remainingSeconds = 10; 
+                    writeRadarLog(`Recording ${mode} signature live context [10s limit]...`, "success");
+
+                    recordingClockInterval = setInterval(() => {
+                        remainingSeconds--;
+                        clockVal.innerText = `0:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+
+                        if (remainingSeconds <= 0) {
+                            stopRecordingEarly(null);
+                        }
+                    }, 1000);
+
+                } else {
+                    setTimeout(() => {
+                        snapLiveSnapshotFrame();
+                    }, 1200);
+                }
+            } catch (err) {
+                writeRadarLog("Hardware initialization failed.", "danger");
+                showToast("Please grant camera permissions!");
+            }
+        }
+
+        function snapLiveSnapshotFrame() {
+            const webCamNode = document.getElementById('provenant-camera-stream');
+            const hiddenCanvas = document.createElement("canvas");
+            hiddenCanvas.width = webCamNode.videoWidth || 640;
+            hiddenCanvas.height = webCamNode.videoHeight || 480;
+            
+            const ctx = hiddenCanvas.getContext("2d");
+            ctx.drawImage(webCamNode, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
+            
+            sampleDataURIs.image = hiddenCanvas.toDataURL("image/png");
+            const imgNode = document.getElementById('active-media-bg');
+            imgNode.style.backgroundImage = `url('${sampleDataURIs.image}')`;
+            
+            hiddenCanvas.toBlob((blob) => {
+                capturedLiveFileBlob = blob;
+                executeSigningSequence();
+            }, "image/png");
+        }
+
+        function stopRecordingEarly(event) {
+            if (event) event.stopPropagation();
+            clearInterval(recordingClockInterval);
+            document.getElementById('recording-clock-badge').classList.replace('flex', 'hidden');
+            
+            if (nativeMediaRecorder && nativeMediaRecorder.state !== 'inactive') {
+                nativeMediaRecorder.stop();
+            }
+        }
+
+        function triggerDevicePicker() {
+            document.getElementById('device-photo-picker').click();
+        }
+
+        function handleFileSelection(event) {
+            const file = event.target.files[0]; if (!file) return;
+            if (file.type.startsWith('video/')) mockMediaType = 'video';
+            else mockMediaType = 'image';
+
+            capturedLiveFileBlob = file; 
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgNode = document.getElementById('active-media-bg');
+                const vidNode = document.getElementById('active-media-video');
+
+                if (mockMediaType === 'image') {
+                    sampleDataURIs.image = e.target.result;
+                    vidNode.classList.add('hidden'); imgNode.classList.remove('hidden');
+                    imgNode.style.backgroundImage = `url('${e.target.result}')`;
+                } else if (mockMediaType === 'video') {
+                    sampleDataURIs.video = e.target.result;
+                    imgNode.classList.add('hidden'); vidNode.classList.remove('hidden');
+                    vidNode.src = e.target.result;
+                    vidNode.pause(); 
+                }
+                writeRadarLog(`Loaded internal file stream target: [${file.name}]`, 'success');
+                executeSigningSequence();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function executeSigningSequence() {
+            if (!capturedLiveFileBlob) {
+                const filePicker = document.getElementById('device-photo-picker');
+                const isUploadedFile = filePicker.files.length > 0;
+                
+                if (!isUploadedFile) {
+                    setTimeout(executeSigningSequence, 300);
+                    return;
+                }
+            }
+
+            isSigningProcessActive = true;
+            clearInterval(recordingClockInterval);
+            document.getElementById('recording-clock-badge').classList.replace('flex', 'hidden');
+
+            const radarScreen = document.getElementById('scan-radar-screen');
+            radarScreen.classList.remove('hidden');
+            writeRadarLog("Forwarding data matrix payload blocks directly to validation gates...", "warning");
+
+            const webCamNode = document.getElementById('provenant-camera-stream');
+            if (!webCamNode.classList.contains('hidden')) {
+                webCamNode.classList.add('hidden');
+                if (mockMediaType === 'image') {
+                    document.getElementById('active-media-bg').classList.remove('hidden');
+                } else if (mockMediaType === 'video') {
+                    document.getElementById('active-media-video').classList.remove('hidden');
+                }
+            }
+
+            if (localMediaStream) {
+                localMediaStream.getTracks().forEach(track => track.stop());
+                localMediaStream = null;
+            }
+
+            try {
+                const filePicker = document.getElementById('device-photo-picker');
+                const isUploadedFile = filePicker.files.length > 0;
+                
+                const isrcVal = document.getElementById('isrc-input')?.value || '';
+                const proVal = document.getElementById('pro-publisher-input')?.value || '';
+
+                const formData = new FormData();
+                if (capturedLiveFileBlob) {
+                    let finalExt = 'png';
+                    if (mockMediaType === 'video') finalExt = 'mp4';
+                    formData.append('mediaFile', capturedLiveFileBlob, `live_capture_${Date.now()}.${finalExt}`);
+                }
+                formData.append('isLiveCapture', (!isUploadedFile).toString());
+                formData.append('isrcCode', isrcVal);
+                formData.append('proPublisher', proVal);
+
+                const SERVER_IP = window.location.origin; 
+                
+                writeRadarLog(`Streaming binary blocks to cryptographic validation array...`);
+                const response = await fetch(`${SERVER_IP}/api/verify-lineage`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    isSigningProcessActive = false;
+                    radarScreen.classList.add('hidden');
+                    isSecuredSigned = true; 
+                    if (data.watermarked) {
+                        writeRadarLog(`Acoustic Soft-Binding Attached: [c2pa.soft_binding.v1]`, "warning");
+                    }
+                    writeRadarLog(`Handshake complete! Certified authority matched: [PROVENANT-SECURE]`, "success");
+                    switchTab('editor');
+                } else {
+                    isSigningProcessActive = false;
+                    radarScreen.classList.add('hidden');
+                    isSecuredSigned = false;
+                    document.getElementById('sim-watermark-pill').classList.add('hidden');
+                    
+                    writeRadarLog(`FORK REJECTED: ${data.reason || 'Verification check failed'}`, "danger");
+                    showToast(data.reason || "Verification blocked.");
+                }
+
+            } catch (err) {
+                console.error("Connection failed details:", err);
+                isSigningProcessActive = false; 
+                radarScreen.classList.add('hidden');
+                isSecuredSigned = false;
+                document.getElementById('sim-watermark-pill').classList.add('hidden');
+                writeRadarLog("Handshake timeout: Verification gateway could not be reached.", "danger");
+                showToast("Backend Server Response Error.");
+            }
+        }
+
+        function syncPersonalizedText() { document.getElementById('sim-watermark-text').innerText = document.getElementById('creator-input').value.toUpperCase(); }
+        function updateFadeDuration() { fadeSeconds = parseFloat(document.getElementById('fade-slider').value); document.getElementById('fade-time-lbl').innerText = `${fadeSeconds}s`; }
+        function triggerWatermarkSimulation() { if (!isSecuredSigned) return; clearInterval(timelineInterval); timelineCurrentSecs = 0.0; const watermark = document.getElementById('sim-watermark-pill'); watermark.style.opacity = '1'; timelineInterval = setInterval(() => { timelineCurrentSecs += 0.1; if (timelineCurrentSecs >= fadeSeconds) watermark.style.opacity = '0'; if (timelineCurrentSecs >= 4.0) clearInterval(timelineInterval); }, 100); }
+
+        function downloadFlattenedMedia() {
+            if (!isSecuredSigned) return;
+
+            const creatorText = document.getElementById('creator-input').value.toUpperCase();
+            const isrcVal = document.getElementById('isrc-input').value || 'N/A';
+            const proVal = document.getElementById('pro-publisher-input').value || 'UNREGISTERED';
+
+            if (mockMediaType === 'video') {
+                showToast("Baking acoustic soft-binding & publishing tags... 🎬");
+                writeRadarLog("Packing native memory block arrays with ISRC tags...", "warning");
+
+                const targetURI = sampleDataURIs.video;
+
+                fetch(targetURI)
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const fileReader = new FileReader();
+                        fileReader.onloadend = function() {
+                            const newTab = window.open();
+                            if (newTab) {
+                                newTab.document.write(`
+                                    <html lang="en">
+                                    <body style="margin:0; background:#05070f; display:flex; flex-col; items-center; justify-content:center; min-height:100vh; font-family:sans-serif; color:#ffffff; text-align:center; padding:20px;">
+                                        <div style="max-width:420px; width:100%;">
+                                            <h3 style="margin-bottom:5px; font-weight:900; tracking-tight; color:#34d399;">🔒 PROVENANT ORIGINAL CERTIFIED</h3>
+                                            <p style="font-size:11px; color:#94a3b8; margin-top:0; margin-bottom:8px;">Creator Attribute: [${creatorText}] — 100% ORIGINAL</p>
+                                            <div style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:8px 12px; margin-bottom:16px; font-family:monospace; font-size:10px; color:#38bdf8; text-align:left;">
+                                                <div>ISRC CODE: <span style="color:#ffffff;">${isrcVal}</span></div>
+                                                <div>PRO PUBLISHER: <span style="color:#ffffff;">${proVal}</span></div>
+                                                <div>WATERMARK: <span style="color:#34d399;">ACOUSTIC SOFT-BINDING EMBEDDED</span></div>
+                                            </div>
+                                            <video src="${fileReader.result}" controls autoplay loop muted playsinline style="width:100%; border-radius:24px; border:1px solid rgba(255,255,255,0.1); box-shadow:0 25px 50px rgba(0,0,0,0.5);"></video>
+                                            <p style="font-size:12px; font-weight:700; color:#f43f5e; margin-top:20px; animation:pulse 2s infinite;">👉 Tap and Hold to select "Save to Device"!</p>
+                                        </div>
+                                    </body>
+                                    </html>
+                                `);
+                                writeRadarLog("Asset package & soft-binding loaded successfully.", "success");
+                            } else {
+                                window.location.href = targetURI;
+                            }
+                        };
+                        fileReader.readAsDataURL(blob);
+                    });
+
+                setTimeout(() => { resetToCameraTab(); }, 2000);
+
+            } else {
+                showToast("Baking media pixel layers... 🚀");
+                const hiddenCanvas = document.createElement("canvas");
+                const ctx = hiddenCanvas.getContext("2d");
+                hiddenCanvas.width = 1080; hiddenCanvas.height = 1920;
+
+                const imgSrc = new Image();
+                imgSrc.crossOrigin = "anonymous";
+                imgSrc.src = sampleDataURIs.image;
+                imgSrc.onload = () => {
+                    const nativeWidth = imgSrc.naturalWidth || 640;
+                    const nativeHeight = imgSrc.naturalHeight || 480;
+                    const scale = Math.max(hiddenCanvas.width / nativeWidth, hiddenCanvas.height / nativeHeight);
+                    const xOffset = (hiddenCanvas.width - nativeWidth * scale) / 2;
+                    const yOffset = (hiddenCanvas.height - nativeHeight * scale) / 2;
+                    
+                    ctx.clearRect(0, 0, hiddenCanvas.width, hiddenCanvas.height);
+                    ctx.drawImage(imgSrc, xOffset, yOffset, nativeWidth * scale, nativeHeight * scale);
+                    
+                    const scaleHeight = Math.floor(hiddenCanvas.width * 0.06);
+                    const finalX = (hiddenCanvas.width - (scaleHeight * 4.2)) * (currentOffsetX / 100);
+                    const finalY = (hiddenCanvas.height - scaleHeight * 1.5) * (currentOffsetY / 100);
+
+                    ctx.save();
+                    ctx.fillStyle = "rgba(0, 0, 0, 0.85)"; ctx.beginPath();
+                    ctx.roundRect(finalX, finalY, scaleHeight * 4, scaleHeight, scaleHeight / 2); ctx.fill();
+                    ctx.fillStyle = "#ffffff"; ctx.font = `900 ${scaleHeight * 0.28}px sans-serif`;
+                    ctx.fillText(creatorText, finalX + scaleHeight * 0.4, finalY + scaleHeight * 0.4);
+                    ctx.fillStyle = "#34d399"; ctx.font = `700 ${scaleHeight * 0.18}px monospace`;
+                    ctx.fillText("100% ORIGINAL", finalX + scaleHeight * 0.4, finalY + scaleHeight * 0.72);
+                    ctx.restore();
+
+                    const dataUrl = hiddenCanvas.toDataURL("image/png");
+                    const downloadLink = document.createElement("a");
+                    downloadLink.download = `provenant_verified_snapshot_${Date.now()}.png`;
+                    downloadLink.href = dataUrl;
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    downloadLink.remove();
+                    
+                    showToast("Success! Design snapshot exported safely.");
+                    resetToCameraTab();
+                };
+            }
+        }
+    </script>
+</body>
+</html>
