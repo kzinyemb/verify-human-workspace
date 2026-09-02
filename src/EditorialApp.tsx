@@ -6,7 +6,10 @@ import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $getSelection, $isRangeSelection, $createTextNode } from 'lexical';
+import { $getSelection, $isRangeSelection,$createTextNode } from 'lexical';
+
+// Import Clerk Authentication & Team Components
+import { OrganizationSwitcher, UserButton, useAuth, useOrganization } from '@clerk/clerk-react';
 
 // Import List Nodes and Plugins
 import { ListNode, ListItemNode } from '@lexical/list';
@@ -42,31 +45,46 @@ function InsertHelper({ textToInsert, onInserted }: { textToInsert: string | nul
 }
 
 export default function EditorialApp() {
+  // --- CLERK AUTHENTICATION CONTEXT ---
+  const { userId } = useAuth();
+  const { organization } = useOrganization();
+  const activeOrgId = organization?.id || 'personal_workspace';
+
   // --- MULTI-DOCUMENT MANAGEMENT STATE ---
   const [currentDocId, setCurrentDocId] = useState<string>(() => {
-    const savedActiveId = localStorage.getItem('vh_active_doc_id');
-    if (savedActiveId) return savedActiveId;
-
-    const savedIndex = localStorage.getItem('vh_doc_index');
-    if (savedIndex) {
-      const docs = JSON.parse(savedIndex);
-      if (docs.length > 0) return docs[docs.length - 1].id;
-    }
-    const defaultId = 'doc_' + Date.now();
-    localStorage.setItem('vh_doc_index', JSON.stringify([{ id: defaultId, title: 'Title' }]));
-    localStorage.setItem('vh_active_doc_id', defaultId);
-    return defaultId;
+    return localStorage.getItem('vh_active_doc_id') || ('doc_' + Date.now());
   });
 
-  const [documentList, setDocumentList] = useState<{ id: string; title: string }[]>(() => {
-    const savedIndex = localStorage.getItem('vh_doc_index');
-    return savedIndex ? JSON.parse(savedIndex) : [{ id: currentDocId, title: 'Title' }];
-  });
+  const [documentList, setDocumentList] = useState<{ id: string; title: string }[]>([]);
+
+  // Fetch Team Documents from Supabase on Load / Org Switch
+  useEffect(() => {
+    const fetchTeamDocuments = async () => {
+      if (!userId) return;
+      const { data, error } = await supabase
+        .from('workspace_documents')
+        .select('id, title')
+        .eq('org_id', activeOrgId)
+        .order('updated_at', { ascending: false });
+
+      if (data && data.length > 0) {
+        setDocumentList(data);
+        if (!data.find(d => d.id === currentDocId)) {
+          setCurrentDocId(data[0].id);
+        }
+      } else {
+        const defaultId = 'doc_' + Date.now();
+        setDocumentList([{ id: defaultId, title: 'New Team Document' }]);
+        setCurrentDocId(defaultId);
+      }
+    };
+    fetchTeamDocuments();
+  }, [activeOrgId, userId]);
 
   const loadStoredMeta = (id: string) => {
     const saved = localStorage.getItem(`vh_meta_${id}`);
     if (saved) return JSON.parse(saved);
-    return { docName: 'Title', orgName: 'Organization/University', authors: ['Enterprise Lead'], headerText: '', footerText: '', docStatus: 'Draft', sources: [] };
+    return { docName: 'Untitled Document', orgName: organization?.name || 'Organization/University', authors: ['Enterprise Lead'], headerText: '', footerText: '', docStatus: 'Draft', sources: [] };
   };
 
   const storedMeta = loadStoredMeta(currentDocId);
@@ -94,11 +112,11 @@ export default function EditorialApp() {
 
   const [docStatus, setDocStatus] = useState(storedMeta.docStatus);
   const [sources, setSources] = useState<string[]>(storedMeta.sources);
-  const [newSource, setNewSource] = useState('');
+  const [newSource, setNewSource] = useState(''); // <-- FIXED: Added this line back
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isNotesMode, setIsNotesMode] = useState(false);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
-  const [lastSaved, setLastSaved] = useState<string>("Up to date");
+  const [lastSaved, setLastSaved] = useState<string>("Unsaved Changes");
 
   // --- CREATORS SANDBOX INTEGRATION STATE ---
   const [bpm, setBpm] = useState<number>(120);
@@ -118,27 +136,69 @@ export default function EditorialApp() {
   const audioChunksRef = useRef<Blob[]>([]);
   const transcriptionBufferRef = useRef<string>("");
 
-  // Save current active document metadata & update list title indexing
+  // Update local cache for immediate rendering speed
   useEffect(() => {
     const meta = { docName, orgName, authors, headerText, footerText, docStatus, sources };
     localStorage.setItem(`vh_meta_${currentDocId}`, JSON.stringify(meta));
+  }, [docName, orgName, authors, headerText, footerText, docStatus, sources, currentDocId]);
 
-    const updatedList = documentList.map(d => d.id === currentDocId ? { ...d, title: docName } : d);
-    setDocumentList(updatedList);
-    localStorage.setItem('vh_doc_index', JSON.stringify(updatedList));
-  }, [docName, orgName, authors, headerText, footerText, docStatus, sources]);
+  // --- DATABASE SYNC LOGIC ---
+  const handleSaveToDatabase = async () => {
+    if (!userId) return;
+    setLastSaved("Syncing to Cloud...");
+    
+    const currentContent = localStorage.getItem(`vh_content_${currentDocId}`);
+    const meta = { docName, orgName, authors, headerText, footerText, docStatus, sources };
+    
+    const { error } = await supabase
+      .from('workspace_documents')
+      .upsert({ 
+        id: currentDocId,
+        org_id: activeOrgId,
+        owner_id: userId,
+        title: docName,
+        content: currentContent ? JSON.parse(currentContent) : {},
+        metadata: meta,
+        status: docStatus,
+        updated_at: new Date().toISOString()
+      });
 
-  const handleSwitchDocument = (newId: string) => {
+    if (error) {
+      console.error("Database sync failed:", error);
+      alert("Database sync failed. Check connection.");
+      setLastSaved("Sync Failed");
+    } else {
+      setLastSaved(new Date().toLocaleTimeString());
+      
+      // Update Library Title Visually
+      setDocumentList(prev => {
+        const exists = prev.find(d => d.id === currentDocId);
+        if (exists) return prev.map(d => d.id === currentDocId ? { ...d, title: docName } : d);
+        return [{ id: currentDocId, title: docName }, ...prev];
+      });
+    }
+  };
+
+  const handleSwitchDocument = async (newId: string) => {
     setCurrentDocId(newId);
     localStorage.setItem('vh_active_doc_id', newId);
-    const meta = loadStoredMeta(newId);
-    setDocName(meta.docName);
-    setOrgName(meta.orgName);
-    setAuthors(meta.authors);
-    setHeaderText(meta.headerText);
-    setFooterText(meta.footerText);
-    setDocStatus(meta.docStatus);
-    setSources(meta.sources);
+    
+    // Pull full content from Supabase
+    const { data } = await supabase.from('workspace_documents').select('*').eq('id', newId).single();
+    
+    if (data) {
+      if (data.content) localStorage.setItem(`vh_content_${newId}`, JSON.stringify(data.content));
+      if (data.metadata) {
+        localStorage.setItem(`vh_meta_${newId}`, JSON.stringify(data.metadata));
+        setDocName(data.metadata.docName || data.title);
+        setOrgName(data.metadata.orgName);
+        setAuthors(data.metadata.authors || []);
+        setHeaderText(data.metadata.headerText || '');
+        setFooterText(data.metadata.footerText || '');
+        setDocStatus(data.metadata.docStatus || 'Draft');
+        setSources(data.metadata.sources || []);
+      }
+    }
     window.location.reload();
   };
 
@@ -147,35 +207,33 @@ export default function EditorialApp() {
     const newTitle = prompt("Enter new paper title:", "Research Paper");
     if (!newTitle || !newTitle.trim()) return;
 
-    const updatedList = [...documentList, { id: newId, title: newTitle.trim() }];
-    setDocumentList(updatedList);
-    localStorage.setItem('vh_doc_index', JSON.stringify(updatedList));
-
-    const initialNewMeta = { docName: newTitle.trim(), orgName: 'Organization/University', authors: ['Enterprise Lead'], headerText: '', footerText: '', docStatus: 'Draft', sources: [] };
+    setDocumentList([{ id: newId, title: newTitle.trim() }, ...documentList]);
+    const initialNewMeta = { docName: newTitle.trim(), orgName: organization?.name || 'Organization/University', authors: ['Enterprise Lead'], headerText: '', footerText: '', docStatus: 'Draft', sources: [] };
+    
     localStorage.setItem(`vh_meta_${newId}`, JSON.stringify(initialNewMeta));
     localStorage.setItem(`vh_content_${newId}`, '');
-
+    
     setCurrentDocId(newId);
     localStorage.setItem('vh_active_doc_id', newId);
     window.location.reload();
   };
 
-  const handleDeleteDocument = (idToDelete: string, e: React.MouseEvent) => {
+  const handleDeleteDocument = async (idToDelete: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (documentList.length <= 1) {
-      alert("You must keep at least one active document.");
-      return;
-    }
-    if (confirm("Are you sure you want to delete this paper?")) {
-      const updatedList = documentList.filter(d => d.id !== idToDelete);
-      setDocumentList(updatedList);
-      localStorage.setItem('vh_doc_index', JSON.stringify(updatedList));
+    if (confirm("Are you sure you want to permanently delete this paper from the team database?")) {
+      const { error } = await supabase.from('workspace_documents').delete().eq('id', idToDelete);
+      
+      if (!error) {
+        const updatedList = documentList.filter(d => d.id !== idToDelete);
+        setDocumentList(updatedList);
+        localStorage.removeItem(`vh_meta_${idToDelete}`);
+        localStorage.removeItem(`vh_content_${idToDelete}`);
 
-      localStorage.removeItem(`vh_meta_${idToDelete}`);
-      localStorage.removeItem(`vh_content_${idToDelete}`);
-
-      if (idToDelete === currentDocId) {
-        handleSwitchDocument(updatedList[0].id);
+        if (idToDelete === currentDocId && updatedList.length > 0) {
+          handleSwitchDocument(updatedList[0].id);
+        } else if (updatedList.length === 0) {
+          handleNewDocument();
+        }
       }
     }
   };
@@ -185,13 +243,8 @@ export default function EditorialApp() {
     const doc = documentList.find(d => d.id === idToRename);
     const newTitle = prompt("Enter new title for paper:", doc?.title || "Research Paper");
     if (newTitle && newTitle.trim()) {
-      const updatedList = documentList.map(d => d.id === idToRename ? { ...d, title: newTitle.trim() } : d);
-      setDocumentList(updatedList);
-      localStorage.setItem('vh_doc_index', JSON.stringify(updatedList));
-
-      if (idToRename === currentDocId) {
-        setDocName(newTitle.trim());
-      }
+      setDocumentList(documentList.map(d => d.id === idToRename ? { ...d, title: newTitle.trim() } : d));
+      if (idToRename === currentDocId) setDocName(newTitle.trim());
     }
   };
 
@@ -231,14 +284,8 @@ export default function EditorialApp() {
   const handleAddAuthor = () => {
     const trimmed = newAuthor.trim();
     if (!trimmed) return;
-    if (authors.includes(trimmed)) {
-      alert("This author has already been added.");
-      return;
-    }
-    if (authors.length >= 2) {
-      alert("Maximum limit of 2 authors allowed.");
-      return;
-    }
+    if (authors.includes(trimmed)) return alert("This author has already been added.");
+    if (authors.length >= 2) return alert("Maximum limit of 2 authors allowed.");
     setAuthors([...authors, trimmed]);
     setNewAuthor('');
   };
@@ -249,9 +296,7 @@ export default function EditorialApp() {
 
   const handleTabSwitch = (tab: string) => {
     setActiveTab(tab);
-    if (tab === 'editorial') {
-      setViewState('editor');
-    }
+    if (tab === 'editorial') setViewState('editor');
   };
 
   const handleToggleBadge = async () => {
@@ -274,8 +319,7 @@ export default function EditorialApp() {
     try {
       const { error } = await supabase
         .from('certified_documents')
-        .insert([
-          {
+        .insert([{
             doc_ref_id: currentDocRefId,
             title: docName,
             client_name: orgName,
@@ -288,14 +332,9 @@ export default function EditorialApp() {
             rhythm_data: { points: rhythmPoints, bpm: bpm },
             status: docStatus,
             sources: sources
-          }
-        ]);
+        }]);
 
-      if (error) {
-        console.error("Supabase Insert Error:", error);
-      } else {
-        console.log(`Enterprise Document ${currentDocRefId} successfully certified and secured!`);
-      }
+      if (error) console.error("Supabase Insert Error:", error);
     } catch (error) {
       console.error("Error securing document data:", error);
     }
@@ -303,9 +342,7 @@ export default function EditorialApp() {
 
   const handleRename = () => {
     const newName = prompt("Enter new document name:", docName);
-    if (newName && newName.trim()) {
-      setDocName(newName.trim());
-    }
+    if (newName && newName.trim()) setDocName(newName.trim());
   };
 
   const handleAddSource = () => {
@@ -387,7 +424,6 @@ export default function EditorialApp() {
           };
           recognition.start();
         }
-
         setIsRecording(true);
       } catch (err) {
         alert("Microphone connection denied or hardware handshake blocked.");
@@ -510,8 +546,27 @@ export default function EditorialApp() {
       `}</style>
 
       {/* Quick Access Top Bar */}
-      <div className="quick-access">
-        <div style={{ cursor: 'pointer' }} title="Exit Dashboard" onClick={() => window.location.href = 'index.html'}>🏠</div>
+      <div className="quick-access" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px', padding: '10px 20px', width: '100%', background: '#0f172a', borderBottom: '1px solid #1e293b' }}>
+        
+        {/* Clerk Organizations & Home Row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <div style={{ cursor: 'pointer', fontSize: '18px' }} title="Exit Dashboard" onClick={() => window.location.href = 'index.html'}>🏠</div>
+          
+          <div style={{ background: '#1e293b', borderRadius: '6px', padding: '2px 8px', border: '1px solid #475569' }}>
+            <OrganizationSwitcher 
+              hidePersonal={false}
+              afterCreateOrganizationUrl="/Editorial-writingpad.html"
+              afterLeaveOrganizationUrl="/Editorial-writingpad.html"
+              afterSelectOrganizationUrl="/Editorial-writingpad.html"
+              appearance={{
+                elements: {
+                  organizationSwitcherTrigger: { color: '#f8fafc' },
+                  organizationSwitcherTriggerIcon: { color: '#38bdf8' }
+                }
+              }}
+            />
+          </div>
+        </div>
         
         {/* Document Switcher & New Paper controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -566,15 +621,8 @@ export default function EditorialApp() {
             onChange={(e) => setDocName(e.target.value)}
             placeholder="Title..."
             style={{
-              background: 'transparent',
-              border: '1px solid transparent',
-              color: '#38bdf8',
-              fontWeight: 'bold',
-              fontSize: '12px',
-              borderRadius: '4px',
-              padding: '2px 6px',
-              outline: 'none',
-              width: '120px'
+              background: 'transparent', border: '1px solid transparent', color: '#38bdf8', fontWeight: 'bold',
+              fontSize: '12px', borderRadius: '4px', padding: '2px 6px', outline: 'none', width: '120px'
             }}
             onFocus={(e) => e.target.style.borderColor = '#38bdf8'}
             onBlur={(e) => e.target.style.borderColor = 'transparent'}
@@ -589,15 +637,8 @@ export default function EditorialApp() {
             onChange={(e) => setOrgName(e.target.value)}
             placeholder="Organization/University..."
             style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid #475569',
-              color: '#f8fafc',
-              fontWeight: 'bold',
-              fontSize: '12px',
-              borderRadius: '4px',
-              padding: '2px 6px',
-              outline: 'none',
-              width: '150px'
+              background: 'rgba(255, 255, 255, 0.05)', border: '1px solid #475569', color: '#f8fafc',
+              fontWeight: 'bold', fontSize: '12px', borderRadius: '4px', padding: '2px 6px', outline: 'none', width: '150px'
             }}
             title="Organization or University Name"
           />
@@ -626,23 +667,23 @@ export default function EditorialApp() {
               <button className="author-add-btn" onClick={handleAddAuthor}>Add</button>
             </div>
           ) : (
-            <span style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic', marginLeft: '5px' }}>
-              (Max 2)
-            </span>
+            <span style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic', marginLeft: '5px' }}>(Max 2)</span>
           )}
 
           <button 
-            onClick={() => {
-              setLastSaved(new Date().toLocaleTimeString());
-              alert("Paper successfully saved locally.");
-            }}
+            onClick={handleSaveToDatabase}
             style={{
-              background: 'none', border: '1px solid #475569', color: '#cbd5e1', fontSize: '10px',
-              padding: '2px 8px', borderRadius: '4px', cursor: 'pointer', marginLeft: '10px'
+              background: '#00b894', border: 'none', color: '#0f172a', fontWeight: 'bold', fontSize: '10px',
+              padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', marginLeft: '10px', boxShadow: '0 2px 4px rgba(0,184,148,0.3)'
             }}
           >
-            💾 Save
+            💾 Save to Team Cloud
           </button>
+        </div>
+
+        {/* Clerk User Button */}
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
+          <UserButton afterSignOutUrl="https://provenantforensics.com" />
         </div>
       </div>
 
@@ -844,7 +885,7 @@ export default function EditorialApp() {
                           height: '100%',
                           outline: 'none',
                           cursor: 'text',
-                          paddingTop: '1.3in',     /* Consistent top spacing for blank or filled headers */
+                          paddingTop: '1.3in',     
                           paddingBottom: '1.6in',
                           color: isNotesMode ? '#065f46' : '#000000',
                           backgroundColor: isNotesMode ? '#f0fdf4' : 'transparent'
@@ -880,48 +921,22 @@ export default function EditorialApp() {
                       <button 
                         onClick={() => setIsBadgeAdded(false)}
                         title="Remove badge from page"
-                        style={{
-                          position: 'absolute',
-                          top: '6px',
-                          right: '8px',
-                          background: 'none',
-                          border: 'none',
-                          color: '#065f46',
-                          fontSize: '14px',
-                          fontWeight: 'bold',
-                          cursor: 'pointer'
-                        }}
+                        style={{ position: 'absolute', top: '6px', right: '8px', background: 'none', border: 'none', color: '#065f46', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer' }}
                       >
                         ✕
                       </button>
 
-                      <input 
-                        type="file" 
-                        ref={fileInputRef} 
-                        onChange={handlePhotoUpload} 
-                        accept="image/*" 
-                        style={{ display: 'none' }} 
-                      />
+                      <input type="file" ref={fileInputRef} onChange={handlePhotoUpload} accept="image/*" style={{ display: 'none' }} />
 
                       <div 
                         onClick={() => fileInputRef.current?.click()}
                         title="Click to upload writer photo"
                         style={{
-                          width: '42px',
-                          height: '42px',
-                          borderRadius: '50%',
+                          width: '42px', height: '42px', borderRadius: '50%',
                           background: writerPhoto ? `url(${writerPhoto}) center/cover no-repeat` : '#d1fae5',
-                          border: '2px dashed #10b981',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '10px',
-                          color: '#065f46',
-                          textAlign: 'center',
-                          cursor: 'pointer',
-                          flexShrink: 0,
-                          overflow: 'hidden',
-                          boxShadow: '0 2px 3px rgba(16, 185, 129, 0.3)'
+                          border: '2px dashed #10b981', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: '10px', color: '#065f46', textAlign: 'center', cursor: 'pointer',
+                          flexShrink: 0, overflow: 'hidden', boxShadow: '0 2px 3px rgba(16, 185, 129, 0.3)'
                         }}
                       >
                         {!writerPhoto && <span style={{ fontSize: '9px', fontWeight: 'bold', padding: '2px' }}>📷 Photo</span>}
@@ -949,11 +964,7 @@ export default function EditorialApp() {
                           Verified human composition. Author: <strong>{authors.join(', ')}</strong> | Status: {docStatus} | Certified On: {badgeTimestamp}
                         </div>
 
-                        <div style={{ 
-                          display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '10px', 
-                          background: 'rgba(16, 185, 129, 0.1)', padding: '6px 10px', borderRadius: '6px', 
-                          border: '1px dashed rgba(16, 185, 129, 0.3)', color: '#064e3b'
-                        }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', fontSize: '10px', background: 'rgba(16, 185, 129, 0.1)', padding: '6px 10px', borderRadius: '6px', border: '1px dashed rgba(16, 185, 129, 0.3)', color: '#064e3b' }}>
                           <span><strong>ID:</strong> {docId}</span>
                           <span><strong>Verify at:</strong> provenantforensics.com/verify</span>
                         </div>
@@ -990,7 +1001,7 @@ export default function EditorialApp() {
               <OnChangePlugin onChange={(editorState) => {
                 const editorStateJSON = editorState.toJSON();
                 localStorage.setItem(`vh_content_${currentDocId}`, JSON.stringify(editorStateJSON));
-                setLastSaved(new Date().toLocaleTimeString());
+                setLastSaved("Unsaved Changes...");
               }} />
 
               <HistoryPlugin delay={0} />
@@ -1019,10 +1030,8 @@ export default function EditorialApp() {
               <button 
                 onClick={toggleRecordingSession} 
                 style={{
-                  background: isRecording ? '#0f172a' : '#e11d48',
-                  color: isRecording ? '#f43f5e' : 'white',
-                  border: isRecording ? '2px solid #f43f5e' : 'none',
-                  padding: '12px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer',
+                  background: isRecording ? '#0f172a' : '#e11d48', color: isRecording ? '#f43f5e' : 'white',
+                  border: isRecording ? '2px solid #f43f5e' : 'none', padding: '12px', borderRadius: '8px', fontWeight: 700, cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '13px'
                 }}
               >
@@ -1097,21 +1106,15 @@ export default function EditorialApp() {
 
       {/* --- DOCUMENTS LIBRARY MODAL --- */}
       {isLibraryOpen && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.8)', zIndex: 100,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui, sans-serif'
-        }}>
-          <div style={{
-            background: '#1e293b', border: '1px solid #475569', borderRadius: '16px',
-            width: '100%', maxWidth: '600px', padding: '30px', color: '#fff', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)'
-          }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui, sans-serif' }}>
+          <div style={{ background: '#1e293b', border: '1px solid #475569', borderRadius: '16px', width: '100%', maxWidth: '600px', padding: '30px', color: '#fff', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>📂 Documents Library</h2>
               <button onClick={() => setIsLibraryOpen(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '18px', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
             </div>
 
             <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '20px' }}>
-              Manage, switch, rename, or delete your saved research papers and manuscripts.
+              Manage, switch, rename, or delete your saved research papers from the cloud.
             </p>
 
             <div style={{ maxHeight: '350px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
@@ -1128,7 +1131,7 @@ export default function EditorialApp() {
                 >
                   <div>
                     <div style={{ fontWeight: 700, fontSize: '14px', color: '#f8fafc' }}>
-                      {doc.id === currentDocId ? '🟢 ' : '📄 '} {doc.title}
+                      {doc.id === currentDocId ? '🟢 ' : '☁️ '} {doc.title}
                     </div>
                     <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '3px' }}>
                       ID: {doc.id} {doc.id === currentDocId ? '• (Active Paper)' : ''}
@@ -1175,7 +1178,7 @@ export default function EditorialApp() {
         <div>Words: <span>{stats.words}</span> | Keystrokes: <span>{stats.keys}</span> | Tempo: {bpm} BPM | Status: {docStatus}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ height: '8px', width: '8px', backgroundColor: '#3b82f6', borderRadius: '50%', display: 'inline-block' }}></span>
-          Enterprise Auto-saved at: {lastSaved}
+          {lastSaved}
         </div>
       </div>
     </LexicalComposer>
