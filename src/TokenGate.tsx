@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 // Pull a comma-separated list of tokens, or default to a single token
 const TOKEN_STRING = import.meta.env.VITE_ADMIN_TOKENS || 'NEWSROOM2026';
 // Split the string into an array and trim any accidental spaces
-const VALID_TOKENS = TOKEN_STRING.split(',').map(token => token.trim());
+const VALID_TOKENS = TOKEN_STRING.split(',').map((token: string) => token.trim());
 
 export default function TokenGate({ children }: { children: React.ReactNode }) {
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -57,4 +57,4 @@ export default function TokenGate({ children }: { children: React.ReactNode }) {
       </div>
     </div>
   );
-}
+}just
