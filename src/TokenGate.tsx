@@ -57,4 +57,4 @@ export default function TokenGate({ children }: { children: React.ReactNode }) {
       </div>
     </div>
   );
-}just
+}
