@@ -3,8 +3,7 @@ import ReactDOM from 'react-dom/client';
 import EditorialApp from './EditorialApp';
 import { ClerkProvider, SignedIn, SignedOut, SignIn } from '@clerk/clerk-react';
 
-// Your Clerk Publishable Key
-const PUBLISHABLE_KEY = "pk_test_cHJlc2VudC1mbGFtaW5nby00OTU0LmNsZXJrLmFjY291bnRzLmRldiQ";
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 if (!PUBLISHABLE_KEY) {
   throw new Error("Missing Clerk Publishable Key");
@@ -14,12 +13,12 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       
-      {/* If the user IS logged in, show the full workspace */}
+      {/* Once invited and logged in, they go straight to the pad */}
       <SignedIn>
         <EditorialApp />
       </SignedIn>
 
-      {/* If the user is NOT logged in, show the secure login screen */}
+      {/* If not logged in, show the Clerk login screen */}
       <SignedOut>
         <div style={{ 
           display: 'flex', 
