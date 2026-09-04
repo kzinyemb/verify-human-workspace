@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import EditorialApp from './EditorialApp';
 import { ClerkProvider, SignedIn, SignedOut, SignIn } from '@clerk/clerk-react';
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+const PUBLISHABLE_KEY = "pk_live_Y2xlcmsudmVyaWZ5LWh1bWFuLXdvcmtzcGFjZS5wYWdlcy5kZXYk";
 
 if (!PUBLISHABLE_KEY) {
   throw new Error("Missing Clerk Publishable Key");
