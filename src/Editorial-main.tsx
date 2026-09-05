@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import EditorialApp from './EditorialApp';
 import { ClerkProvider, SignedIn, SignedOut, SignIn, SignUp } from '@clerk/clerk-react';
@@ -9,32 +9,48 @@ if (!PUBLISHABLE_KEY) {
   throw new Error("Missing Clerk Publishable Key");
 }
 
-// 1. Read the URL parameters
+// 1. Read the URL parameters globally
 const urlParams = new URLSearchParams(window.location.search);
 const mode = urlParams.get('mode');
 const plan = urlParams.get('plan');
-const isInvite = urlParams.has('__clerk_ticket'); // Detects the secret tag in Clerk invite emails
+const isInvite = urlParams.has('__clerk_ticket'); 
 
-// 2. Assign the correct Stripe link for public buyers
-let stripeUrl = "https://buy.stripe.com/00w6oHh0XeccdRFcV4gYU07"; // Default to Writers
-if (plan === "enterprise") {
-    stripeUrl = "https://buy.stripe.com/fZuaEX9yv7NO3d1cV4gYU06";
+// 2. Create a smart routing component for users who are logged in
+function AppController() {
+  useEffect(() => {
+    // If they are a new buyer and NOT an invited team member, send them to Stripe
+    if (mode === 'signup' && !isInvite) {
+      let stripeUrl = "https://buy.stripe.com/00w6oHh0XeccdRFcV4gYU07"; // Writers tier
+      if (plan === "enterprise") {
+        stripeUrl = "https://buy.stripe.com/fZuaEX9yv7NO3d1cV4gYU06"; // Enterprise tier
+      }
+      window.location.href = stripeUrl;
+    }
+  }, []);
+
+  // Show a seamless loading screen while Stripe loads so the writing pad doesn't flash
+  if (mode === 'signup' && !isInvite) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#0f172a', color: 'white', fontFamily: 'sans-serif' }}>
+        <h2>Routing to secure checkout...</h2>
+      </div>
+    );
+  }
+
+  // If they are an invitee or a returning user, load the writing pad!
+  return <EditorialApp />;
 }
-
-// 3. The Routing Logic: 
-// If they clicked an email invite, skip Stripe and send to the pad. Otherwise, send to Stripe.
-const finalRedirectUrl = isInvite ? "/Editorial-writingpad.html" : stripeUrl;
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       
-      {/* Once logged in, they go straight to the pad */}
+      {/* 3. If logged in, let the AppController intercept the Stripe handoff or load the app */}
       <SignedIn>
-        <EditorialApp />
+        <AppController />
       </SignedIn>
 
-      {/* If not logged in, show the correct auth box */}
+      {/* 4. If not logged in, show the correct Clerk auth box */}
       <SignedOut>
         <div style={{ 
           display: 'flex', 
@@ -47,7 +63,6 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           {mode === 'signup' || isInvite ? (
             <SignUp 
               routing="hash" 
-              forceRedirectUrl={finalRedirectUrl} 
               signInUrl="/Editorial-writingpad.html" 
             />
           ) : (
