@@ -9,27 +9,32 @@ if (!PUBLISHABLE_KEY) {
   throw new Error("Missing Clerk Publishable Key");
 }
 
-// 1. Read the URL parameters passed from your landing page
+// 1. Read the URL parameters
 const urlParams = new URLSearchParams(window.location.search);
 const mode = urlParams.get('mode');
 const plan = urlParams.get('plan');
+const isInvite = urlParams.has('__clerk_ticket'); // Detects the secret tag in Clerk invite emails
 
-// 2. Assign the correct Stripe link based on their choice
+// 2. Assign the correct Stripe link for public buyers
 let stripeUrl = "https://buy.stripe.com/00w6oHh0XeccdRFcV4gYU07"; // Default to Writers
 if (plan === "enterprise") {
     stripeUrl = "https://buy.stripe.com/fZuaEX9yv7NO3d1cV4gYU06";
 }
 
+// 3. The Routing Logic: 
+// If they clicked an email invite, skip Stripe and send to the pad. Otherwise, send to Stripe.
+const finalRedirectUrl = isInvite ? "/Editorial-writingpad.html" : stripeUrl;
+
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       
-      {/* Once invited and logged in, they go straight to the pad */}
+      {/* Once logged in, they go straight to the pad */}
       <SignedIn>
         <EditorialApp />
       </SignedIn>
 
-      {/* If not logged in, route to Sign Up or Sign In based on URL params */}
+      {/* If not logged in, show the correct auth box */}
       <SignedOut>
         <div style={{ 
           display: 'flex', 
@@ -39,8 +44,8 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           width: '100vw',
           backgroundColor: '#0f172a' 
         }}>
-          {mode === 'signup' ? (
-            <SignUp forceRedirectUrl={stripeUrl} signInUrl="/Editorial-writingpad.html" />
+          {mode === 'signup' || isInvite ? (
+            <SignUp forceRedirectUrl={finalRedirectUrl} signInUrl="/Editorial-writingpad.html" />
           ) : (
             <SignIn signUpUrl="/Editorial-writingpad.html?mode=signup&plan=writers" />
           )}
