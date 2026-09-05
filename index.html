@@ -399,11 +399,13 @@
         }
 
         function proceedToCheckout() {
-            // Check which plan was selected and route to the corresponding Stripe Payment Link
+            const appUrl = 'https://provenantforensics.com/Editorial-writingpad.html'; 
+            
+            // Route to the React app and pass the plan choice in the URL
             if (activeSelectedPlanForCheckout === 'Writers Tier') {
-                window.location.href = 'https://buy.stripe.com/00w6oHh0XeccdRFcV4gYU07';
+                window.location.href = appUrl + '?mode=signup&plan=writers';
             } else if (activeSelectedPlanForCheckout === 'Editorial Enterprise Suite') {
-                window.location.href = 'https://buy.stripe.com/fZuaEX9yv7NO3d1cV4gYU06';
+                window.location.href = appUrl + '?mode=signup&plan=enterprise';
             }
         }
 
