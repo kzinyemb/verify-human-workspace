@@ -45,9 +45,16 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           backgroundColor: '#0f172a' 
         }}>
           {mode === 'signup' || isInvite ? (
-            <SignUp forceRedirectUrl={finalRedirectUrl} signInUrl="/Editorial-writingpad.html" />
+            <SignUp 
+              routing="hash" 
+              forceRedirectUrl={finalRedirectUrl} 
+              signInUrl="/Editorial-writingpad.html" 
+            />
           ) : (
-            <SignIn signUpUrl="/Editorial-writingpad.html?mode=signup&plan=writers" />
+            <SignIn 
+              routing="hash" 
+              signUpUrl="/Editorial-writingpad.html?mode=signup&plan=writers" 
+            />
           )}
         </div>
       </SignedOut>
