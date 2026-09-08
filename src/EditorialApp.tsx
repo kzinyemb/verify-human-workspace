@@ -112,7 +112,7 @@ export default function EditorialApp() {
 
   const [docStatus, setDocStatus] = useState(storedMeta.docStatus);
   const [sources, setSources] = useState<string[]>(storedMeta.sources);
-  const [newSource, setNewSource] = useState(''); // <-- FIXED: Added this line back
+  const [newSource, setNewSource] = useState(''); 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isNotesMode, setIsNotesMode] = useState(false);
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
@@ -681,8 +681,25 @@ export default function EditorialApp() {
           </button>
         </div>
 
-        {/* Clerk User Button */}
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
+        {/* Billing & Clerk User Button */}
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '15px' }}>
+          <a 
+            href="https://billing.stripe.com/p/login/cNifZh11Z4BC00PcV4gYU00" 
+            target="_blank" 
+            rel="noreferrer"
+            style={{ 
+              color: '#f8fafc', 
+              fontSize: '11px', 
+              textDecoration: 'none', 
+              fontWeight: 'bold',
+              border: '1px solid #475569',
+              padding: '4px 10px',
+              borderRadius: '6px',
+              background: '#1e293b'
+            }}
+          >
+            💳 Manage Billing
+          </a>
           <UserButton afterSignOutUrl="https://provenantforensics.com" />
         </div>
       </div>
