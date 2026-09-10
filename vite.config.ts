@@ -11,9 +11,9 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         app: resolve(__dirname, 'app.html'),
         'Editorial-writingpad': resolve(__dirname, 'Editorial-writingpad.html'),
-        
         terms: resolve(__dirname, 'terms.html'),
-        privacy: resolve(__dirname, 'privacy.html')
+        privacy: resolve(__dirname, 'privacy.html'),
+        verify: resolve(__dirname, 'verify.html') // <-- ADDED THIS LINE
       },
     },
   },
