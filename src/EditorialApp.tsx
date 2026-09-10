@@ -118,6 +118,9 @@ export default function EditorialApp() {
   const [isLibraryOpen, setIsLibraryOpen] = useState(false);
   const [lastSaved, setLastSaved] = useState<string>("Unsaved Changes");
 
+  // --- AUTO-SAVE TRIGGER STATE ---
+  const [triggerAutoSave, setTriggerAutoSave] = useState(0);
+
   // --- CREATORS SANDBOX INTEGRATION STATE ---
   const [bpm, setBpm] = useState<number>(120);
   const [tapTimes, setTapTimes] = useState<number[]>([]);
@@ -178,6 +181,22 @@ export default function EditorialApp() {
       });
     }
   };
+
+  // --- AUTO-SAVE DEBOUNCE EFFECT ---
+  useEffect(() => {
+    if (triggerAutoSave === 0) return; // Skip the very first render
+
+    // Wait exactly 3 seconds after typing stops before firing the save command
+    const autoSaveTimer = setTimeout(() => {
+      handleSaveToDatabase();
+    }, 3000);
+
+    // If the user types again before 3 seconds are up, cancel the timer and restart it
+    return () => clearTimeout(autoSaveTimer);
+    
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [triggerAutoSave]);
+
 
   const handleSwitchDocument = async (newId: string) => {
     setCurrentDocId(newId);
@@ -1019,6 +1038,9 @@ export default function EditorialApp() {
                 const editorStateJSON = editorState.toJSON();
                 localStorage.setItem(`vh_content_${currentDocId}`, JSON.stringify(editorStateJSON));
                 setLastSaved("Unsaved Changes...");
+                
+                // NEW AUTO-SAVE LOGIC: This increments the trigger number every time the text changes, resetting the 3-second timer.
+                setTriggerAutoSave(prev => prev + 1); 
               }} />
 
               <HistoryPlugin delay={0} />
