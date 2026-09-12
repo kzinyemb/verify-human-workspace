@@ -211,7 +211,6 @@
             </span>
         </div>
         <nav class="header-nav">
-            <a href="#plans" class="nav-link">Plans & Pricing</a>
             <a href="https://provenantforensics.com/Editorial-writingpad.html" class="btn-login" style="text-decoration: none;">Client Login</a>
         </nav>
     </header>
@@ -271,14 +270,6 @@
                 <p style="color: var(--text-muted);">Export an immutable cryptographic verification badge or structured PDF validation brief directly to high-value buyers.</p>
             </div>
         </div>
-    </section>
-
-    <section id="plans">
-        <div style="text-align: center; margin-bottom: 70px;">
-            <h2 style="font-size: 2.8rem; margin-bottom: 15px;">Integrity Plans</h2>
-            <p style="color: var(--text-muted);">Transparent pricing for individual authors and team suites.</p>
-        </div>
-        <div id="pricing-matrix-container" class="grid-2"></div>
     </section>
 
     <section class="feedback-section-container">
@@ -363,6 +354,8 @@
 
         function renderPricing() {
             const pricingMatrix = document.getElementById('pricing-matrix-container');
+            if (!pricingMatrix) return; // Prevents console error when section is removed
+
             pricingMatrix.innerHTML = ''; 
 
             pricingPlans.forEach(card => {
