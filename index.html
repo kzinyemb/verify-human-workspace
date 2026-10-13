@@ -16,6 +16,44 @@
     <title>Provenant™ | Forensic Integrity for Screenwriters & Music Journalists</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&family=Fira+Code:wght@400;500&display=swap">
 
+    <!-- CLERK AUTHENTICATION ENGINE -->
+    <script>
+        const clerkPublishableKey = "pk_live_Y2xlcmsucHJvdmVuYW50Zm9yZW5zaWNzLmNvbSQ";
+        
+        const clerkScript = document.createElement('script');
+        clerkScript.setAttribute('data-clerk-publishable-key', clerkPublishableKey);
+        clerkScript.async = true;
+        clerkScript.src = `https://clerk.provenantforensics.com/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
+        clerkScript.crossOrigin = 'anonymous';
+        
+        clerkScript.addEventListener('load', async function () {
+            try {
+                await window.Clerk.load();
+                
+                const userBtnTarget = document.getElementById('clerk-user-profile');
+                const loginBtn = document.getElementById('login-btn');
+                
+                if (window.Clerk.user) {
+                    // If logged in, show avatar and hide "Log In" text
+                    if (userBtnTarget) window.Clerk.mountUserButton(userBtnTarget);
+                    if (loginBtn) loginBtn.style.display = 'none';
+                } else {
+                    // If logged out, open Clerk modal on click
+                    if (loginBtn) {
+                        loginBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            window.Clerk.openSignIn();
+                        });
+                    }
+                }
+            } catch (e) {
+                console.log("Clerk blocked or failed to load. Continuing in anonymous mode.");
+            }
+        });
+
+        document.head.appendChild(clerkScript);
+    </script>
+
     <style>
         :root {
             --brand-accent: #00b894; /* Emerald */
@@ -48,7 +86,7 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .header-nav { display: flex; align-items: center; gap: 20px; }
+        .header-nav { display: flex; align-items: center; gap: 24px; }
 
         .btn-login {
             background: rgba(255, 255, 255, 0.08);
@@ -68,6 +106,15 @@
             color: white;
             transform: translateY(-1px);
         }
+        
+        .nav-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .nav-link:hover { color: #fff; }
 
         section { padding: 80px 20px; max-width: 1200px; margin: 0 auto; }
 
@@ -226,8 +273,18 @@
                 PROVEN<span style="color: var(--brand-writer);">ANT</span>™
             </span>
         </div>
+        
+        <!-- RESTORED CLERK AND STRIPE BUTTONS -->
         <nav class="header-nav">
-            <span class="btn-login" style="pointer-events: none; opacity: 0.7;">Client Login (Coming Soon)</span>
+            <a href="/open-pad" style="color: #60a5fa; text-decoration: none; font-size: 13px; font-weight: 700; transition: color 0.2s;">Try Demo</a>
+            
+            <div id="clerk-user-profile"></div>
+            
+            <a href="#" id="login-btn" class="nav-link">Log In</a>
+            
+            <a href="https://buy.stripe.com/aFa4gz11Z1pq5l9g7ggYU0b" class="btn-login" style="background: var(--brand-accent); color: #000; border: none;">
+                Sign Up Pro
+            </a>
         </nav>
     </header>
 
@@ -308,8 +365,8 @@
             </div>
             <div class="pw-tool-group">
                 <div class="pw-tool-row">
-                    <span class="pw-tool-icon">• List</span>
-                    <span class="pw-tool-icon">1. List</span>
+                    <span class="pw-tool-icon">List</span>
+                    <span class="pw-tool-icon">List</span>
                 </div>
                 <span class="pw-tool-label">Lists & Indents</span>
             </div>
@@ -318,7 +375,7 @@
 
         <!-- Main Workspace -->
         <div class="pw-main">
-            <div class="pw-editor-container">
+            <div class="pw-editor-container custom-scroll">
                 <div class="pw-paper" contenteditable="true" placeholder="Draft enterprise text, screenplay scenes, or multi-author review content here... Try typing to test the live forensic rhythm capture."></div>
             </div>
             
