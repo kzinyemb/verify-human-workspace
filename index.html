@@ -31,20 +31,20 @@
                 await window.Clerk.load();
                 
                 const userBtnTarget = document.getElementById('clerk-user-profile');
-                const loginBtn = document.getElementById('login-btn');
+                const signinBtns = document.querySelectorAll('.clerk-signin-btn');
                 
                 if (window.Clerk.user) {
-                    // If logged in, show avatar and hide "Log In" text
+                    // If logged in, show avatar and hide "Sign In" buttons
                     if (userBtnTarget) window.Clerk.mountUserButton(userBtnTarget);
-                    if (loginBtn) loginBtn.style.display = 'none';
+                    signinBtns.forEach(btn => btn.style.display = 'none');
                 } else {
                     // If logged out, open Clerk modal on click
-                    if (loginBtn) {
-                        loginBtn.addEventListener('click', (e) => {
+                    signinBtns.forEach(btn => {
+                        btn.addEventListener('click', (e) => {
                             e.preventDefault();
                             window.Clerk.openSignIn();
                         });
-                    }
+                    });
                 }
             } catch (e) {
                 console.log("Clerk blocked or failed to load. Continuing in anonymous mode.");
@@ -280,7 +280,8 @@
             
             <div id="clerk-user-profile"></div>
             
-            <a href="#" id="login-btn" class="nav-link">Log In</a>
+            <!-- Header Sign In Link -->
+            <a href="#" class="nav-link clerk-signin-btn">Sign In</a>
             
             <a href="https://buy.stripe.com/aFa4gz11Z1pq5l9g7ggYU0b" class="btn-login" style="background: var(--brand-accent); color: #000; border: none;">
                 Sign Up Pro
@@ -303,9 +304,19 @@
             </div>
             <h1>Secure Your Creative IP.<br><span style="color: var(--brand-writer); text-shadow: 0 0 30px rgba(59, 130, 246, 0.3);">Prove Absolute Human Origin.</span></h1>
         </div>
-        <p style="max-width: 700px; margin: 0 auto; color: var(--text-muted); font-size: 1.1rem;">
+        <p style="max-width: 700px; margin: 0 auto 35px auto; color: var(--text-muted); font-size: 1.1rem;">
             Built for screenwriters, lyricists, and music journalists. Establish undeniable proof of genuine human authorship. Build your certified portfolio utilizing our isolated behavioral cadence workstation that validates your unique creative rhythm.
         </p>
+        
+        <!-- Hero Call to Action Buttons -->
+        <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 20px;">
+            <a href="#" class="btn-login clerk-signin-btn" style="background: var(--brand-writer); border-color: var(--brand-writer); padding: 14px 32px; font-size: 15px;">
+                Sign In to Workspace
+            </a>
+            <a href="/open-pad" class="btn-login" style="padding: 14px 32px; font-size: 15px;">
+                Try B2B Demo
+            </a>
+        </div>
     </section>
 
     <!-- Interactive Demo Workspace -->
